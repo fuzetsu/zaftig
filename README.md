@@ -34,7 +34,7 @@ const App = () => (
 render(<App />, document.getElementById('app'))
 ```
 
-# Highlights
+## Highlights
 
 - 💸 Quick and lightweight
 - 🙇 User defined helper functions `z.helper({})`
@@ -42,7 +42,7 @@ render(<App />, document.getElementById('app'))
 - 🅰️ Initial based css property shorthands _e.g. bc == background-color or d == display_
 - ⚙️ Automatic vendor prefixes (**incomplete**)
 
-# API
+## API
 
 ```js
 z`<zaftig expression>`
@@ -96,6 +96,6 @@ In debug mode Zaftig will insert styles using `textContent` and will log to the 
 
 **NOTE:** This is less efficient than the normal CSSOM method, but it allows you to modify styles using chrome dev tools.
 
-# Credits
+## Credits
 
 Heavily inspired by [bss](https://github.com/porsager/bss) by [Rasmus Porsager](https://github.com/porsager).
