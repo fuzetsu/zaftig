@@ -1,4 +1,4 @@
-# Zaftig ![size](https://img.badgesize.io/fuzetsu/zaftig/master/src/index.js.png?label=unminified&color=blue)
+# Zaftig ![npm](https://img.shields.io/npm/v/zaftig.svg) ![size](https://img.badgesize.io/fuzetsu/zaftig/master/src/index.js.png?label=unminified&color=blue)
 
 > Adjective, having a full rounded figure : pleasingly plump
 
