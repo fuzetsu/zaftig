@@ -129,7 +129,7 @@ const createStyle = memo(rules => {
 
 const z = (parts, ...args) => {
   if (typeof parts === 'string') parts = [parts]
-  if (!Array.isArray(parts)) return
+  if (!Array.isArray(parts)) return ''
   return createStyle(zip(parts, args))
 }
 z.add = (sel, rules) => (appendRule(sel, parseRules(rules)), z)
