@@ -128,9 +128,9 @@ const createStyle = memo(rules => {
 })
 
 const z = (parts, ...args) => {
-  if (typeof parts === 'string') parts = [parts]
-  if (!Array.isArray(parts)) return ''
-  return createStyle(zip(parts, args))
+  if (typeof parts === 'string') return createStyle(parts)
+  if (Array.isArray(parts)) return createStyle(zip(parts, args))
+  return ''
 }
 z.add = (sel, rules) => (appendRule(sel, parseRules(rules)), z)
 z.getSheet = () => style
