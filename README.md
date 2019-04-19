@@ -7,16 +7,19 @@ Zaftig efficiently parses styles, generates a classname and inserts them into a 
 Passing the same style string will return the same classname.
 
 ```jsx
-import z from 'zaftig'
-import { render } from 'some-vdom-library'
+import z from 'https://unpkg.com/zaftig?module'
+import { React, ReactDOM } from 'https://unpkg.com/es-react?module'
+import htm from 'https://unpkg.com/htm?module'
 
-z.css('html,body', 'm 0;ff sans-serif;bc #445566;c white')
+const html = htm.bind(React.createElement)
 
-const App = () => (
-  <main>
-    <h1 class={z`ta center`}>Header</h1>
+z.add('html,body', 'm 0;ff sans-serif;bc #445566;c white;fs 14px')
+
+const App = () => html`
+  <main className=${z`m 10px`}>
+    <h1 className=${z`ta center`}>Header</h1>
     <button
-      class={z`
+      className=${z`
         border none
         br 4px; p 0.75rem
         c #445566; bc white
@@ -29,10 +32,12 @@ const App = () => (
       Click Me
     </button>
   </main>
-)
+`
 
-render(<App />, document.getElementById('app'))
+ReactDOM.render(App(), document.getElementById('app'))
 ```
+
+[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvAHgBMIA3AAgjYF4AOiAwAHUcIB8gtN24yWAeg6dJlEHBixqxCPQSIQABkQBGAEwgAvhXTZch-ACsEVOgybE8ELKNoAnYm4AL24wf1osbgByEmJROERFRQBXNFEAawBzfDosRWCMMF0sgH4sWjYU2GiZHz9A7mBuACUYDB0KVvadABEAeQBZbiswiKjY4njE5LTMnLzFeABafx7icsrqmFq0eoCgkijwyJi4hKTU9OzcyMUjzaqamRl3OEPSKG5+biP8ACMIGg2AAKNodYi5NYYRgAUVgOAYAEoXmhgvgMGxQZMyBR-pUAJ7RLrRKJGADcYDA3DgGDQcGWmn8EDA5P+1G4AGIACzcgCsfIAbILyRyAO6ECCMSlwbimbmiAAe0RRaFe+iCAEFxN9uCCkd9JL9PgADGRyFhYDBA7jUKAYOBwABy9n4ABJgMETVFTEYlSbcvbHVZpLI5NwWIRTLag87XR6vcQMLbPDB-AG7Q64CGABLtNhppRR0PhiP-FJTejm0sxrMunDu4DVmshM1hlv4-wF-zcND0GDNmv-HsKxXk7iibhGfAAdj5aywg9LHJ5-KFIu47O4EqlA-bNbAstMgqVS-D1BS-jgAQntCBjH8Z7kxH8dLgUr0shfb7AAR9RiMLA4CfbgADJEAhLgYCabhv3pX9-CiOBqAwWAQWnABOA0rBAjNYzPHD9xLGsAGEoAgagMm4QY91LJRy0rNBiKUK0gVDNsZHBPohnwNZgTTEFtVEfUujYWgL0RSEshgYh4RgSSACECQASWxMRRBVVV1E0bRdH0PBuUQblLBsOwcDwXJHXUdxGGYQxrAAXSsIA)
 
 ## Highlights
 
