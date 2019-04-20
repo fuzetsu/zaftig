@@ -1,10 +1,12 @@
 {
   "name": "zaftig",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "css for your js",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "source": "src/index.js",
+  "main": "dist/zaftig.min.js",
+  "module": "dist/zaftig.min.js",
   "scripts": {
+    "build": "mkdir -p dist && cp src/index.js dist/zaftig.js && terser --module --compress --mangle -o dist/zaftig.min.js -- src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/fuzetsu/zaftig/issues"
   },
-  "homepage": "https://github.com/fuzetsu/zaftig#readme"
+  "homepage": "https://github.com/fuzetsu/zaftig#readme",
+  "devDependencies": {
+    "terser": "^3.17.0"
+  }
 }
