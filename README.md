@@ -50,7 +50,7 @@ ReactDOM.render(App(), document.getElementById('app'))
 ## API
 
 ```js
-z`<zaftig expression>`
+z`<styleString>`
 ```
 
 Generates className and inserts styles into stylesheet, returns a `Style { class, style }` object.
@@ -72,6 +72,14 @@ z`
 `
 z`c green;bc orange`
 ```
+
+<hr>
+
+```js
+z.all(...styleString)
+```
+
+Processes multiple style strings into one `className` (classes separated by space). Useful when in JSX and template strings where concatenating manually might be undesirable.
 
 <hr>
 
