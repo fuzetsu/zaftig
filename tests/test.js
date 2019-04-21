@@ -43,15 +43,17 @@ class App extends Component {
     const style = z`${exp}`
     return html`
       <main
-        class=${z`
+        class=${z.all(
+          `
             flexCenter
             flex-flow column
             transition background-color 500ms
             pad 6 b
             & > * { mar 3 b }
             & > input { ta center }
-          `}
-        style=${z`bc ${color}`.style}
+          `,
+          `bc ${color}`
+        )}
       >
         <div class=${z`fs 2em;fw bold;mar 3`}>Zaftig</div>
         <div>

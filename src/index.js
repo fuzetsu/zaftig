@@ -132,6 +132,7 @@ const z = (parts, ...args) => {
   if (Array.isArray(parts)) return createStyle(zip(parts, args))
   return ''
 }
+z.all = (...rules) => rules.map(createStyle).join(' ')
 z.add = (sel, rules) => (appendRule(sel, parseRules(rules)), z)
 z.getSheet = () => style
 z.helper = spec => Object.assign(helpers, spec)
