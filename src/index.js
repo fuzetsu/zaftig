@@ -64,13 +64,13 @@ const short = {
   us: 'user-select'
 }
 
-const appendRule = (sel, rules) =>
-  rules.nest.concat({ sel, rules }).forEach(r => {
-    if (r.rules.style.trim().length <= 0) return
-    const rule = `\n${r.sel.replace(/&/g, sel)} {\n${r.rules.style}}\n`
-    if (debug) style.textContent += rule
-    else sheet.insertRule(rule)
-  })
+const appendRule = (sel, rules, psel) => {
+  rules.nest.forEach(n => appendRule(n.sel, n.rules, sel))
+  if (rules.style.trim().length <= 0) return
+  const rule = `\n${sel.replace(/&/g, psel || sel)} {\n${rules.style}}\n`
+  if (debug) style.textContent += rule
+  else sheet.insertRule(rule)
+}
 
 const propRegex = /(^|;|\n)\s*([A-z-]+)?:?([ ]+[^;\n$]+)?/gm
 const ruleRegex = /(&.+)\{([^}]+)\}/gm
