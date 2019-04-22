@@ -134,8 +134,7 @@ const parseRules = memo(str => {
       } else if (quotes.includes(char)) {
         buffer += quote = char
       } else if (char == '{') {
-        ctx.push({ sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] })
-        depth += 1
+        ctx[++depth] = { sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] }
         mode = PROP
       } else if (ruleBreak.includes(char)) {
         mode = PROP
