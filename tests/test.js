@@ -35,6 +35,7 @@ const tbox = z`
   &:focus { transform scale(1.08) }
   &:focus + & {
     transform rotate(180deg)
+    &::placeholder { c orange }
   }
 `
 
@@ -89,7 +90,7 @@ class App extends Component {
             shadow 10
           `}
         >
-${z.getSheet().textContent.trim()}</pre
+        ${z.getSheet().textContent.trim()}</pre
         >
       </main>
     `

@@ -49,9 +49,7 @@ ReactDOM.render(App(), document.getElementById('app'))
 
 ## API
 
-```js
-z`<styleString>`
-```
+### `` z`<styleString>` ``
 
 Generates className and inserts styles into stylesheet, returns a `Style { class, style }` object.
 
@@ -67,41 +65,36 @@ z`
   background-color orange
   &:focus {
     margin 20px
+    &::placeholder { c orange }
   }
   & > span { p 10px }
 `
 z`c green;bc orange`
 ```
 
-<hr>
+Styles are separated by `;` or `\n`.
 
-```js
-z.all(...styleString)
-```
+`sel { /* rules */ }` creates a nested style. Use `&` within the selector to reference the parent selector similar to how [Less](http://lesscss.org/) works.
+
+### `z.all(...styleString)`
 
 Processes multiple style strings into one `className` (classes separated by space). Useful when in JSX and template strings where concatenating manually might be undesirable.
 
 <hr>
 
-```js
-z.add(selector, styleString)
-```
+### `z.add(selector, styleString)`
 
 Inserts styles into stylesheet.
 
 <hr>
 
-```js
-z.helper({ helperName: helperString | helperFunction, ... })
-```
+### `z.helper({ helperName: helperString | helperFunction, ... })`
 
 Register helpers functions to be called from style strings.
 
 <hr>
 
-```js
-z.setDebug(bool)
-```
+### `z.setDebug(bool)`
 
 Enable/disable debug mode.
 

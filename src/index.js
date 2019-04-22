@@ -1,5 +1,13 @@
 let debug = false
 
+const PROP = 1
+const VALUE = 2
+
+const newLine = /\r?\n/g
+
+const quotes = ['"', "'"]
+const ruleBreak = [';', '\n', '}']
+
 const helpers = {}
 
 const id =
@@ -64,47 +72,84 @@ const short = {
   us: 'user-select'
 }
 
-const appendRule = (sel, rules, psel) => {
-  rules.nest.forEach(n => appendRule(n.sel, n.rules, sel))
+const appendRule = (sel, rules, psel = '') => {
+  sel = sel.replace(/&/g, psel)
+  rules.nest.forEach(n => appendRule(n.sel, n, sel))
   if (rules.style.trim().length <= 0) return
-  const rule = `\n${sel.replace(/&/g, psel || sel)} {\n${rules.style}}\n`
+  const rule = `\n${sel} {\n${rules.style}}\n`
   if (debug) style.textContent += rule
   else sheet.insertRule(rule)
 }
 
-const propRegex = /(^|;|\n)\s*([A-z-]+)?:?([ ]+[^;\n$]+)?/gm
-const ruleRegex = /(&.+)\{([^}]+)\}/gm
+const assignRule = (ctx, key, value) => {
+  key = key && key.trim()
+  value = value && value.trim()
+  if (!key) return
+  let helper = helpers[key]
+  if (helper) {
+    if (typeof helper == 'function') helper = helper(...(value || '').split(' '))
+    const parsed = typeof helper == 'string' ? parseRules(helper) : helper
+    ctx.style += parsed.style
+    ctx.nest = ctx.nest.concat(parsed.nest)
+  }
+  if (!value) return
+  key = short[key] || key
+  if (!validProps[key]) {
+    const prefixed = `-${vendorPrefix}-${key}`
+    if (validProps[prefixed]) key = prefixed
+    else if (debug) return console.warn('warning invalid key', key), ''
+  }
+  ctx.style += `  ${key}: ${value.replace(newLine, '')};\n`
+}
 
-const parseRules = memo(rules => {
-  let nest = []
-  const style = rules
-    .trim()
-    .replace(ruleRegex, (_full, sel, subRules) => {
-      nest.push({ sel: sel.trim(), rules: parseRules(subRules) })
-      return ''
-    })
-    .replace(propRegex, (_full, _start, key, value) => {
-      key = key && key.trim()
-      if (!key) return ''
-      const helper = helpers[key]
-      if (helper) {
-        const helperRules = parseRules(
-          helper.call ? helper(...(value ? value.trim().split(' ') : [])) : helper
-        )
-        nest = nest.concat(helperRules.nest)
-        return helperRules.style
-      }
-      if (!value) return ''
-      key = short[key] || key
-      if (!validProps[key]) {
-        const prefixed = `-${vendorPrefix}-${key}`
-        if (validProps[prefixed]) key = prefixed
-        else if (debug) return console.warn('warning invalid key', key), ''
-      }
-      return `  ${key}: ${value.trim()};\n`
-    })
-  return { style, nest }
-})
+const parseRules = str => {
+  const ctx = [{ style: '', nest: [] }]
+  str = str && str.trim()
+  if (!str) return ctx[0]
+  str += ';' // append semi to properly commit last rule
+  let mode = PROP
+  let lastMode = mode
+  let buffer = ''
+  let depth = 0
+  let char, curProp, quote
+  for (let i = 0, len = str.length; i < len; i++) {
+    char = str[i]
+    if (mode == PROP) {
+      if (char == ' ') {
+        curProp = ''
+        if (buffer) {
+          curProp = buffer.trim()
+          mode = VALUE
+        }
+      } else if (ruleBreak.includes(char)) {
+        mode = PROP
+        if (buffer.trim()) assignRule(ctx[depth], buffer)
+        if (char == '}') ctx[--depth].nest.push(ctx.pop())
+        buffer = ''
+      } else buffer += char
+    } else if (mode == VALUE) {
+      if (quote) {
+        if (char == quote && str[i - 1] !== '\\') quote = ''
+        buffer += char
+      } else if (quotes.includes(char)) {
+        buffer += quote = char
+      } else if (char == '{') {
+        ctx.push({ sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] })
+        depth += 1
+        mode = PROP
+      } else if (ruleBreak.includes(char)) {
+        mode = PROP
+        assignRule(ctx[depth], curProp, buffer)
+        if (char == '}') ctx[--depth].nest.push(ctx.pop())
+      } else buffer += char
+    }
+    if (mode != lastMode) {
+      buffer = ''
+      lastMode = mode
+    }
+  }
+  return ctx[0]
+}
 
 class Style {
   constructor(className, style) {
