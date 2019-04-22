@@ -102,7 +102,7 @@ const assignRule = (ctx, key, value) => {
   ctx.style += `  ${key}: ${value.replace(newLine, '')};\n`
 }
 
-const parseRules = str => {
+const parseRules = memo(str => {
   const ctx = [{ style: '', nest: [] }]
   str = str && str.trim()
   if (!str) return ctx[0]
@@ -149,7 +149,7 @@ const parseRules = str => {
     }
   }
   return ctx[0]
-}
+})
 
 class Style {
   constructor(className, style) {
