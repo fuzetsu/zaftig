@@ -76,6 +76,8 @@ Styles are separated by `;` or `\n`.
 
 `sel { /* rules */ }` creates a nested style. Use `&` within the selector to reference the parent selector similar to how [Less](http://lesscss.org/) works.
 
+<hr>
+
 ### `z.all(...styleString)`
 
 Processes multiple style strings into one `className` (classes separated by space). Useful when in JSX and template strings where concatenating manually might be undesirable.
