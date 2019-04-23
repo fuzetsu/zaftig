@@ -69,7 +69,8 @@ const short = {
   bs: 'box-shadow',
   ws: 'white-space',
   ff: 'font-family',
-  us: 'user-select'
+  us: 'user-select',
+  fd: 'flex-direction'
 }
 
 const appendRule = (sel, rules, psel = '') => {
