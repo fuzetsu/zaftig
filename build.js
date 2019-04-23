@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global require */
 const fss = require('fs')
 const fs = fss.promises
 const path = require('path')
@@ -8,14 +9,17 @@ const input = fss.readFileSync('src/index.js', 'utf8')
 
 const outName = 'zaftig.min.js'
 
-const output = Terser.minify(input, {
-  module: true,
-  ecma: 8,
-  sourceMap: {
-    filename: outName,
-    url: outName + '.map'
+const output = Terser.minify(
+  { [outName]: input },
+  {
+    module: true,
+    ecma: 8,
+    sourceMap: {
+      filename: outName,
+      url: outName + '.map'
+    }
   }
-})
+)
 
 fs.mkdir('dist', { recursive: true }).then(() => {
   const outPath = path.join('dist', outName)
