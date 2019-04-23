@@ -10,8 +10,7 @@ const outName = 'zaftig.min.js'
 
 const output = Terser.minify(input, {
   module: true,
-  compress: true,
-  mangle: true,
+  ecma: 8,
   sourceMap: {
     filename: outName,
     url: outName + '.map'
@@ -19,7 +18,8 @@ const output = Terser.minify(input, {
 })
 
 fs.mkdir('dist', { recursive: true }).then(() => {
-  fs.writeFile(path.join('dist', outName.replace('.min', '')), input)
-  fs.writeFile(path.join('dist', outName), output.code)
-  fs.writeFile(path.join('dist', outName + '.map'), output.map)
+  const outPath = path.join('dist', outName)
+  fs.writeFile(outPath.replace('.min', ''), input)
+  fs.writeFile(outPath, output.code)
+  fs.writeFile(outPath + '.map', output.map)
 })
