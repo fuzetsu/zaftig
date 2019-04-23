@@ -100,6 +100,8 @@ Register helpers functions to be called from style strings.
 
 Enable/disable debug mode.
 
+Debug mode should be enabled before any styles are created or unexpected things may happen.
+
 In debug mode Zaftig will insert styles using `textContent` and will log to the console when an unknown css property is encountered.
 
 **NOTE:** This is less efficient than the normal CSSOM method, but it allows you to modify styles using chrome dev tools.
