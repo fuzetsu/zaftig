@@ -98,7 +98,7 @@ const assignRule = (ctx, key, value) => {
   if (!validProps[key]) {
     const prefixed = `-${vendorPrefix}-${key}`
     if (validProps[prefixed]) key = prefixed
-    else if (debug) return console.warn('warning invalid key', key), ''
+    else if (debug && !key.startsWith('--')) console.warn('warning invalid key', key)
   }
   ctx.style += `  ${key}: ${value.replace(newLine, '')};\n`
 }
