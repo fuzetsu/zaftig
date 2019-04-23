@@ -91,6 +91,7 @@ const assignRule = (ctx, key, value) => {
     const parsed = typeof helper == 'string' ? parseRules(helper) : helper
     ctx.style += parsed.style
     ctx.nest = ctx.nest.concat(parsed.nest)
+    return
   }
   if (!value) return
   key = short[key] || key
@@ -108,7 +109,6 @@ const parseRules = memo(str => {
   if (!str) return ctx[0]
   str += ';' // append semi to properly commit last rule
   let mode = PROP
-  let lastMode = mode
   let buffer = ''
   let depth = 0
   let char, curProp, quote
@@ -120,11 +120,12 @@ const parseRules = memo(str => {
         if (buffer) {
           curProp = buffer.trim()
           mode = VALUE
+          buffer = ''
         }
       } else if (ruleBreak.includes(char)) {
-        mode = PROP
         if (buffer.trim()) assignRule(ctx[depth], buffer)
         if (char == '}') ctx[--depth].nest.push(ctx.pop())
+        mode = PROP
         buffer = ''
       } else buffer += char
     } else if (mode == VALUE) {
@@ -136,15 +137,13 @@ const parseRules = memo(str => {
       } else if (char == '{') {
         ctx[++depth] = { sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] }
         mode = PROP
+        buffer = ''
       } else if (ruleBreak.includes(char)) {
-        mode = PROP
         assignRule(ctx[depth], curProp, buffer)
         if (char == '}') ctx[--depth].nest.push(ctx.pop())
+        mode = PROP
+        buffer = ''
       } else buffer += char
-    }
-    if (mode != lastMode) {
-      buffer = ''
-      lastMode = mode
     }
   }
   return ctx[0]
