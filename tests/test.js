@@ -50,8 +50,8 @@ class App extends Component {
             flex-flow column
             transition background-color 500ms
             pad 6 b
-            & > * { mar 3 b }
-            & > input { ta center }
+            > * { mar 3 b }
+            > input { ta center }
           `,
           `bc ${color}`
         )}
@@ -84,7 +84,6 @@ class App extends Component {
             ws pre-wrap
             bc white;c #445566
             pad 8
-            mar 3
             br 4px
             columns 2
             shadow 10

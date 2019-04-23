@@ -74,7 +74,7 @@ const short = {
 }
 
 const appendRule = (sel, rules, psel = '') => {
-  sel = sel.replace(/&/g, psel)
+  if (psel) sel = sel.includes('&') ? sel.replace(/&/g, psel) : psel + ' ' + sel
   rules.nest.forEach(n => appendRule(n.sel, n, sel))
   if (rules.style.trim().length <= 0) return
   const rule = `\n${sel} {\n${rules.style}}\n`
