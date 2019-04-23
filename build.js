@@ -7,10 +7,11 @@ const Terser = require('terser')
 
 const input = fss.readFileSync('src/index.js', 'utf8')
 
+const srcName = 'zaftig.js'
 const outName = 'zaftig.min.js'
 
 const output = Terser.minify(
-  { [outName]: input },
+  { [srcName]: input },
   {
     module: true,
     ecma: 8,
@@ -22,8 +23,11 @@ const output = Terser.minify(
 )
 
 fs.mkdir('dist', { recursive: true }).then(() => {
+  // copy main source file
+  fs.writeFile(path.join('dist', srcName), input)
+
+  // write min file and source map
   const outPath = path.join('dist', outName)
-  fs.writeFile(outPath.replace('.min', ''), input)
   fs.writeFile(outPath, output.code)
   fs.writeFile(outPath + '.map', output.map)
 })

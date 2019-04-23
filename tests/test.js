@@ -1,5 +1,6 @@
 import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone.mjs'
 import z from '../src/index.js'
+// import z from '../dist/zaftig.min.js'
 
 z.setDebug(true)
 
