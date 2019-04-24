@@ -30,42 +30,45 @@ const initials = str =>
     .replace(/[a-z]/g, '')
     .toLowerCase()
 
-const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
 const vendorPrefix = 'webkit'
-const styleProps = []
-const vendorProps = []
-Object.keys(findStyle(document.documentElement.style)).forEach(k => {
-  if (k.includes('-') || k === 'length') return
-  if (k.toLowerCase().startsWith(vendorPrefix))
-    vendorProps.push({
-      init: initials(k).slice(1),
-      prop: (k.startsWith(vendorPrefix) ? '-' : '') + dash(k)
-    })
-  else styleProps.push({ init: initials(k), prop: dash(k) })
-})
-const allProps = vendorProps.concat(styleProps)
-const validProps = allProps.reduce((obj, s) => ((obj[s.prop] = true), obj), {})
-const short = {
-  ...allProps.reduce((obj, s) => ((obj[s.init] = s.prop), obj), {}),
-  d: 'display',
-  bc: 'background-color',
-  c: 'color',
-  m: 'margin',
-  p: 'padding',
-  h: 'height',
-  w: 'width',
-  fs: 'font-size',
-  t: 'top',
-  r: 'right',
-  br: 'border-radius',
-  ta: 'text-align',
-  td: 'text-decoration',
-  mt: 'margin-top',
-  bs: 'box-shadow',
-  ws: 'white-space',
-  ff: 'font-family',
-  us: 'user-select',
-  fd: 'flex-direction'
+
+// list of popular properties that should have a higher shorthand priority
+const popular = [
+  'display',
+  'backgroundColor',
+  'color',
+  'margin',
+  'padding',
+  'height',
+  'width',
+  'fontSize',
+  'top',
+  'right',
+  'borderRadius',
+  'textAlign',
+  'textDecoration',
+  'marginTop',
+  'boxShadow',
+  'whiteSpace',
+  'fontFamily',
+  'userSelect',
+  'flexDirection'
+]
+
+const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
+
+const validProps = []
+const short = []
+for (let prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
+  if (!prop.includes('-') && prop != 'length') {
+    let dashed = dash(prop)
+    let init = initials(prop)
+    if (prop.toLowerCase().startsWith(vendorPrefix)) {
+      init = init.slice(1)
+      if (!short[init]) short[init] = dashed.startsWith('-') ? dashed : '-' + dashed
+    } else short[init] = dashed
+    validProps[dashed] = true
+  }
 }
 
 const appendRule = (sel, rules, psel = '') => {
