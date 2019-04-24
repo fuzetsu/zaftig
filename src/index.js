@@ -93,7 +93,7 @@ const assignRule = (ctx, key, value) => {
   if (!validProps[key]) {
     const prefixed = `-${vendorPrefix}-${key}`
     if (validProps[prefixed]) key = prefixed
-    else if (debug && !key.startsWith('--')) console.warn('warning invalid key', key)
+    else if (debug && !key.startsWith('--')) console.warn('zaftig: unknown key', key)
   }
   ctx.style += `  ${key}: ${value};\n`
 }
@@ -153,10 +153,15 @@ class Style {
 }
 
 const createStyle = memo(rules => {
-  const parsed = parseRules(rules)
-  const className = id + '-' + (idCount += 1)
-  appendRule('.' + className, parsed)
-  return new Style(className, parsed.style)
+  try {
+    const parsed = parseRules(rules)
+    const className = id + '-' + (idCount += 1)
+    appendRule('.' + className, parsed)
+    return new Style(className, parsed.style)
+  } catch (e) {
+    console.error('zafitg: error `', rules, '`\n', e)
+    return ''
+  }
 })
 
 const z = (parts, ...args) => {
