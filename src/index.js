@@ -3,11 +3,6 @@ let debug = false
 const PROP = 1
 const VALUE = 2
 
-const newLine = /\r?\n/g
-
-const quotes = ['"', "'"]
-const ruleBreak = [';', '\n', '}']
-
 const helpers = {}
 
 const id =
@@ -83,8 +78,7 @@ const appendRule = (sel, rules, psel = '') => {
 }
 
 const assignRule = (ctx, key, value) => {
-  key = key && key.trim()
-  value = value && value.trim()
+  if (value && !key) (key = value), (value = '')
   if (!key) return
   let helper = helpers[key]
   if (helper) {
@@ -101,7 +95,7 @@ const assignRule = (ctx, key, value) => {
     if (validProps[prefixed]) key = prefixed
     else if (debug && !key.startsWith('--')) console.warn('warning invalid key', key)
   }
-  ctx.style += `  ${key}: ${value.replace(newLine, '')};\n`
+  ctx.style += `  ${key}: ${value};\n`
 }
 
 const parseRules = memo(str => {
@@ -112,39 +106,33 @@ const parseRules = memo(str => {
   let mode = PROP
   let buffer = ''
   let depth = 0
-  let char, curProp, quote
+  let quote = ''
+  let char, curProp
   for (let i = 0, len = str.length; i < len; i++) {
     char = str[i]
-    if (mode == PROP) {
+    if (char == '\n' || ((char == ';' || char == '}') && !quote)) {
+      assignRule(ctx[depth], curProp, buffer.trim() + quote)
+      if (char == '}') ctx[--depth].nest.push(ctx.pop())
+      mode = PROP
+      curProp = buffer = quote = ''
+    } else if (char == '{' && !quote) {
+      ctx[++depth] = { sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] }
+      mode = PROP
+      curProp = buffer = ''
+    } else if (mode == PROP) {
       if (char == ' ') {
-        curProp = ''
-        if (buffer) {
-          curProp = buffer.trim()
+        if ((curProp = buffer.trim())) {
           mode = VALUE
           buffer = ''
         }
-      } else if (ruleBreak.includes(char)) {
-        if (buffer.trim()) assignRule(ctx[depth], buffer)
-        if (char == '}') ctx[--depth].nest.push(ctx.pop())
-        mode = PROP
-        buffer = ''
       } else buffer += char
     } else if (mode == VALUE) {
       if (quote) {
-        if (char == quote && str[i - 1] !== '\\') quote = ''
-        buffer += char
-      } else if (quotes.includes(char)) {
-        buffer += quote = char
-      } else if (char == '{') {
-        ctx[++depth] = { sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] }
-        mode = PROP
-        buffer = ''
-      } else if (ruleBreak.includes(char)) {
-        assignRule(ctx[depth], curProp, buffer)
-        if (char == '}') ctx[--depth].nest.push(ctx.pop())
-        mode = PROP
-        buffer = ''
-      } else buffer += char
+        if (char == quote && str[i - 1] != '\\') quote = ''
+      } else if (char == "'" || char == '"') {
+        quote = char
+      }
+      buffer += char
     }
   }
   return ctx[0]
