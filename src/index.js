@@ -16,6 +16,8 @@ const style = document.head.appendChild(document.createElement('style'))
 style.id = id
 const sheet = style.sheet
 
+// const p = (...args) => (console.log(...args), args[0])
+
 const zip = (parts, args) =>
   parts.reduce((acc, c, i) => acc + c + (args[i] == null ? '' : args[i]), '')
 
@@ -59,25 +61,60 @@ const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.g
 
 const validProps = []
 const short = []
-for (let prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
+for (const prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
   if (!prop.includes('-') && prop != 'length') {
-    let dashed = dash(prop)
+    const dashed = dash(prop)
     let init = initials(prop)
     if (prop.toLowerCase().startsWith(vendorPrefix)) {
       init = init.slice(1)
-      if (!short[init]) short[init] = dashed.startsWith('-') ? dashed : '-' + dashed
+      if (!short[init]) short[init] = dashed[0] == '-' ? dashed : '-' + dashed
     } else short[init] = dashed
     validProps[dashed] = true
   }
 }
 
-const appendRule = (sel, rules, psel = '') => {
-  if (psel) sel = sel.includes('&') ? sel.replace(/&/g, psel) : psel + ' ' + sel
-  rules.nest.forEach(n => appendRule(n.sel, n, sel))
-  if (rules.style.trim().length <= 0) return
-  const rule = `\n${sel} {\n${rules.style}}\n`
-  if (debug) style.textContent += rule
-  else sheet.insertRule(rule)
+const specialSel = /^@(media|keyframes)/
+
+const wrap = (sel, body) => (sel && body ? `\n${sel} {\n${body}}\n` : '')
+
+const addToSheet = (sel, body) => {
+  const rule = wrap(sel, body)
+  if (rule) {
+    if (debug) style.textContent += rule
+    else sheet.insertRule(rule, sheet.cssRules.length)
+  }
+}
+
+const appendSpecialRule = spec => {
+  if (spec.media) {
+    const query = spec.sel.slice(spec.sel.indexOf(' ') + 1)
+    spec.sub.forEach(c => c.media && (c.sel += ' and ' + query))
+  }
+  if (spec.rules) addToSheet(spec.sel, spec.rules.replace(/^/gm, '  ') + '\n')
+  if (spec.sub) spec.sub.forEach(appendSpecialRule)
+}
+
+const appendSpecial = (sel, rules, psel = '', pctx = null) => {
+  const media = sel.startsWith('@media')
+  const ctx = {
+    sel,
+    media,
+    sub: [],
+    rules: media && psel && rules.style ? `\n${psel} {\n${rules.style}}\n` : ''
+  }
+  rules.nest.forEach(n => appendRule(n.sel, n, psel, ctx))
+  if (pctx) pctx.sub.push(ctx)
+  else appendSpecialRule(ctx)
+}
+
+const appendRule = (sel, rules, psel = '', pctx = null) => {
+  if (specialSel.test(sel)) return appendSpecial(sel, rules, psel, pctx)
+  if (psel && (!pctx || pctx.isMedia)) {
+    sel = sel.includes('&') ? sel.replace(/&/g, psel) : psel + (sel[0] == ':' ? '' : ' ') + sel
+  }
+  if (pctx) pctx.rules += wrap(sel, rules.style)
+  else addToSheet(sel, rules.style)
+  rules.nest.forEach(n => appendRule(n.sel, n, sel, pctx))
 }
 
 const assignRule = (ctx, key, value) => {
