@@ -120,6 +120,7 @@ const appendRule = (sel, rules, psel = '', pctx = null) => {
 const assignRule = (ctx, key, value) => {
   if (value && !key) (key = value), (value = '')
   if (!key) return
+  if (key[0] == '$') return (ctx.uname = value)
   let helper = helpers[key]
   if (helper) {
     if (typeof helper == 'function') helper = helper(...(value || '').split(' '))
@@ -195,7 +196,7 @@ class Style {
 const createStyle = memo(rules => {
   try {
     const parsed = parseRules(rules)
-    const className = id + '-' + (idCount += 1)
+    const className = (parsed.uname ? parsed.uname + '-' : '') + id + '-' + (idCount += 1)
     appendRule('.' + className, parsed)
     return new Style(className, parsed.style)
   } catch (e) {

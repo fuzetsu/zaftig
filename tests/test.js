@@ -34,6 +34,7 @@ z.helper({
 window.z = z
 
 const btn = z`
+  $name button
   d inline-block
   br 4px
   c #445566;bc white
@@ -54,6 +55,7 @@ const btn = z`
 `
 
 const tbox = z`
+  $name text-box
   border none
   bc white
   pad 3
