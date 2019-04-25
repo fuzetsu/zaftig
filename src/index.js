@@ -100,7 +100,7 @@ const appendSpecial = (sel, rules, psel = '', pctx = null) => {
     sel,
     media,
     sub: [],
-    rules: media && psel && rules.style ? `\n${psel} {\n${rules.style}}\n` : ''
+    rules: media && psel && rules.style ? wrap(psel, rules.style) : ''
   }
   rules.nest.forEach(n => appendRule(n.sel, n, psel, ctx))
   if (pctx) pctx.sub.push(ctx)
