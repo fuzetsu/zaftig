@@ -109,7 +109,7 @@ const appendSpecial = (sel, rules, psel = '', pctx = null) => {
 
 const appendRule = (sel, rules, psel = '', pctx = null) => {
   if (specialSel.test(sel)) return appendSpecial(sel, rules, psel, pctx)
-  if (psel && (!pctx || pctx.isMedia)) {
+  if (psel && (!pctx || pctx.media)) {
     sel = sel.includes('&') ? sel.replace(/&/g, psel) : psel + (sel[0] == ':' ? '' : ' ') + sel
   }
   if (pctx) pctx.rules += wrap(sel, rules.style)
