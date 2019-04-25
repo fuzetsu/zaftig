@@ -28,6 +28,18 @@ fs.mkdir('dist', { recursive: true }).then(() => {
 
   // write min file and source map
   const outPath = path.join('dist', outName)
+  if (fss.existsSync(outPath)) {
+    const beforeSize = fss.statSync(outPath).size
+    console.log(
+      [
+        '== zaftig.min.js ==',
+        'Before: ' + beforeSize,
+        ' After: ' + output.code.length,
+        '  Diff: ' + (beforeSize - output.code.length),
+        '==================='
+      ].join('\n')
+    )
+  }
   fs.writeFile(outPath, output.code)
   fs.writeFile(outPath + '.map', output.map)
 })
