@@ -200,7 +200,7 @@ const createStyle = memo(rules => {
     appendRule('.' + className, parsed)
     return new Style(className, parsed.style)
   } catch (e) {
-    console.error('zafitg: error `', rules, '`\n', e)
+    console.error('zaftig: error `', rules, '`\n', e)
     return ''
   }
 })
