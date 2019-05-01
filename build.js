@@ -34,7 +34,7 @@ const reportDiff = (path, newCode) => {
       '== zaftig.min.js ==',
       'Before: ' + beforeSize + ' (gzip ' + beforeGzip + ')',
       ' After: ' + afterSize + ' (gzip ' + afterGzip + ')',
-      '  Diff: ' + (beforeSize - afterSize) + ' (gzip ' + (beforeGzip - afterGzip) + ')',
+      '  Diff: ' + (afterSize - beforeSize) + ' (gzip ' + (afterGzip - beforeGzip) + ')',
       '==================='
     ].join('\n')
   )

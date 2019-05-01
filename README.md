@@ -7,19 +7,20 @@ Zaftig efficiently parses styles, generates a classname and inserts them into a 
 Passing the same style string will return the same classname.
 
 ```jsx
+// works just as well with React and most other libraries
+import m from 'https://unpkg.com/mithril@next?module'
 import z from 'https://unpkg.com/zaftig?module'
-import { React, ReactDOM } from 'https://unpkg.com/es-react?module'
-import htm from 'https://unpkg.com/htm?module'
 
-const html = htm.bind(React.createElement)
+import htm from 'https://unpkg.com/htm?module'
+const html = htm.bind(m)
 
 z.add('html,body', 'm 0;ff sans-serif;bc #445566;c white;fs 14px')
 
 const App = () => html`
-  <main className=${z`m 10px`}>
-    <h1 className=${z`ta center`}>Header</h1>
+  <main class=${z`m 10px`}>
+    <h1 class=${z`ta center`}>Header</h1>
     <button
-      className=${z`
+      class=${z`
         border none
         br 4px; p 0.75rem
         c #445566; bc white
@@ -34,10 +35,10 @@ const App = () => html`
   </main>
 `
 
-ReactDOM.render(App(), document.getElementById('app'))
+m.mount(document.body, { view: () => App() })
 ```
 
-[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvAHgBMIA3AAgjYF4AOiAwAHUcIB8gtN24yWAeg6dJlEHBixqxCPQSIQABkQBGAEwgAvhXTZch-ACsEVOgybE8ELKNoAnYm4AL24wf1osbgByEmJROERFRQBXNFEAawBzfDosRWCMMF0sgAEoDEY4YgB+LFo2FNhomR8-QO5gbgAlGAwdCh6+nQARAHkAWW4rMIio2OJ4xOS0zJy8xXgAWn9h2vrG5tbfAKCSKPDImLiEpNT07NzIxXO6hqaYFrQZd2ruc6g3H4-1I+AARhA0GwABS9frEXK7SowACisBwDAAlDIZMF8Bg2DCFmQKGCGgBPaKDaJRIwAbjAYG4cAwaDgW00-ggYDpYOo3AAxAAWIUAVlFADYJXT+QB3QgQRgMuDcUxC0QAD2i2O+aF+QQAguIgdxoZigZIQWQAAYyOQsLAYSHcagVOBwABy9n4ABJgMFrVFTEZNdbcm64FZpLI5NwWIRTC6I16cL7-dbiBgXZ4YP4w66MO6owAJPpsXNKBPR2NxsEpRb0O01pOFz3ev1N5shW0xrtk-zl-zcND0GCd5tgofqjV07iibhGfAAdlFuyw45r-OFYsl0u4fO48sVY97zbAKtMEs1G9j1BS-jgATntEhjH8N7kxH8rLgir0si-H8wACIMjCMLA4A-bgADJEHhLgYE6bhALZYD-CiOBqAwWBoUXABOc0rCg-MIxvIjT2rZsAGEoAgagMm4CYTxrJQ6wbNBKKUR1IWjHsZDhUZJnwXYoVzaEjVEM1BjYWg7wxBEshgYg0RgeSACFyQASSJMRRG1HV1E0bRdH0PA8MQcwAA5rFsEBMBwPBcnddR3EYZhDGsABdKwgA)
+[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvAHgBMIA3AAgjYF4AOiAwAHUcIB8gtN24yWAeg6dJlEHBixqxCPQSIQABkQBGAEwgAvhXTZch-ACsEVOgybE8ELKNoAnYm4AL24wf1osbgByEmJROERFRQBXNFEAawBzfDosRWCMMF0sgH4sWjYU2GiZHz9A7ijwyJi4hKTU9OzcyMUsCGJCf2gAATQYAA9icsrqmFq0eoCgkmaIqNjieMTktMycvMU12aqamRl3OFXSKG5+bjX8ACMINDYACiwASgu0YPwGDYny2ZAoz0qAE9ohQYlEjABuMBgbhwDBoOAAWk0IzACOe1G4AGIACwkgCs5IAbFSEYSAO6EQYwJFwbimEmiSbRX5oS76IIAQXE924H2+90kj1uAAMZHIWFgMG9uNQoBg4HB+AASYDBGVRUxGLkyqzSWRybgsQimVXqzU6vUy4gYVWeGD+U2SAASMCBHqUNvNlqtzxS23o8pDdo1Wt1+qj0e4EP8bA93DQ9Bgiejz383E5kwR3FE3CM+AA7OT-DAsDmQ4TSRTqbTkwymYx65awGzTFSuV25NQUv44AES7Q3ox-IPuMR-Oi4IM9LJ54uwAFDUYjFg4LOAGSIDA6LgwbjAOcLjEb-xRODUDCwD7lgCcEqsXdNOeD0YAwlAIGoDJuAAWWzC0FUUMMIzQH8lCVN5zTlPk0CwfAKjSYgPjYWhhxwBgXihWEL04CAYHpRAxQlfgpWFURxW4KxvnUTRtF0fQ8HMCtEApaxbBATAcDwXJNXUdxGGYQxrAAXSsIA)
 
 ## Highlights
 
@@ -75,18 +76,6 @@ z`c green;bc orange`
 Styles are separated by `;` or `\n`.
 
 `sel { /* rules */ }` creates a nested style. Use `&` within the selector to reference the parent selector similar to how [Less](http://lesscss.org/) works.
-
-<hr>
-
-### `z.all(...styleString)`
-
-Processes multiple style strings into one `className` (classes separated by space). Useful when in JSX and template strings where concatenating manually might be undesirable.
-
-<hr>
-
-### `z.add(selector, styleString)`
-
-Inserts styles into stylesheet.
 
 <hr>
 

@@ -1,7 +1,7 @@
 import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone.mjs'
-// import _z from '../src/index.js'
+import _z from '../src/index.js'
 // import _z from '../dist/zaftig.min.js'
-import _z from 'https://unpkg.com/zaftig@latest'
+// import _z from 'https://unpkg.com/zaftig@latest'
 
 // const p = (...args) => (console.log(...args), args[0])
 
@@ -21,9 +21,14 @@ const params = new URLSearchParams(location.search)
 const isDebug = params.get('debug') !== 'false'
 z.setDebug(isDebug)
 
-z.add('html,body', 'm 0;ff sans-serif;bc #445566;c white;fs 14px')
-  .add('a', 'c lightblue; &:visited { c limegreen }')
-  .add('pre', 'm 0')
+z.global`
+  html, body { m 0;ff sans-serif;bc #445566;c white;fs 14px }
+  a {
+    c lightblue
+    :visited { c limegreen }
+  }
+  pre { m 0 }
+`
 
 z.helper({
   flexCenter: 'd flex;ai center;jc center',
@@ -79,17 +84,15 @@ class App extends Component {
     const style = z`${exp}`
     return html`
       <main
-        class=${z.all(
-          `
-            flexCenter
-            flex-flow column
-            transition background-color 500ms
-            pad 6 b
-            > * { mar 3 b }
-            > input { ta center }
-          `,
-          `bc ${color}`
-        )}
+        class=${z`
+          flexCenter
+          flex-flow column
+          transition background-color 500ms
+          pad 6 b
+          > * { mar 3 b }
+          > input { ta center }
+          bc ${color}
+        `}
       >
         <div
           class=${z`

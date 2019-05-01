@@ -100,7 +100,7 @@ const appendSpecial = (sel, rules, psel = '', pctx = null) => {
     sel,
     media,
     sub: [],
-    rules: media && psel && rules.style ? wrap(psel, rules.style) : ''
+    rules: media ? wrap(psel, rules.style) : ''
   }
   rules.nest.forEach(n => appendRule(n.sel, n, psel, ctx))
   if (pctx) pctx.sub.push(ctx)
@@ -110,7 +110,12 @@ const appendSpecial = (sel, rules, psel = '', pctx = null) => {
 const appendRule = (sel, rules, psel = '', pctx = null) => {
   if (specialSel.test(sel)) return appendSpecial(sel, rules, psel, pctx)
   if (psel && (!pctx || pctx.media)) {
-    sel = sel.includes('&') ? sel.replace(/&/g, psel) : psel + (sel[0] == ':' ? '' : ' ') + sel
+    sel = sel
+      .split(',')
+      .map(isel =>
+        isel.includes('&') ? isel.replace(/&/g, psel) : psel + (isel[0] == ':' ? '' : ' ') + isel
+      )
+      .join(', ')
   }
   if (pctx) pctx.rules += wrap(sel, rules.style)
   else addToSheet(sel, rules.style)
@@ -193,25 +198,34 @@ class Style {
   }
 }
 
-const createStyle = memo(rules => {
+const handleError = fn => x => {
   try {
-    const parsed = parseRules(rules)
-    const className = (parsed.uname ? parsed.uname + '-' : '') + id + '-' + (idCount += 1)
-    appendRule('.' + className, parsed)
-    return new Style(className, parsed.style)
+    return fn(x)
   } catch (e) {
-    console.error('zaftig: error `', rules, '`\n', e)
+    console.error('zaftig: error `', x, '`\n', e)
     return ''
   }
-})
+}
 
-const z = (parts, ...args) => {
-  if (typeof parts === 'string') return createStyle(parts)
-  if (Array.isArray(parts)) return createStyle(zip(parts, args))
+const createStyle = handleError(
+  memo(rules => {
+    const parsed = parseRules(rules)
+    const className =
+      (parsed.uname ? parsed.uname.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
+    appendRule('.' + className, parsed)
+    return new Style(className, parsed.style)
+  })
+)
+
+const handleTemplate = (parts, args, fn) => {
+  if (typeof parts === 'string') return fn(parts)
+  if (Array.isArray(parts)) return fn(zip(parts, args))
   return ''
 }
-z.all = (...rules) => rules.map(createStyle).join(' ')
-z.add = (sel, rules) => (appendRule(sel, parseRules(rules)), z)
+
+const z = (parts, ...args) => handleTemplate(parts, args, createStyle)
+z.global = (parts, ...args) =>
+  handleTemplate(parts, args, handleError(rules => appendRule('', parseRules(rules))))
 z.getSheet = () => style
 z.helper = spec => Object.assign(helpers, spec)
 z.setDebug = flag => (debug = flag)
