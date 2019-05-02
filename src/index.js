@@ -21,7 +21,7 @@ const sheet = style.sheet
 const zip = (parts, args) =>
   parts.reduce((acc, c, i) => acc + c + (args[i] == null ? '' : args[i]), '')
 
-const memo = (fn, cache = {}) => x => cache[x] || (cache[x] = fn(x))
+const memo = (fn, cache = {}) => x => (x in cache ? cache[x] : (cache[x] = fn(x)))
 
 const dash = nodash => nodash.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
 
@@ -73,6 +73,29 @@ for (const prop of Object.keys(findStyle(document.documentElement.style)).concat
   }
 }
 
+const testDiv = document.createElement('div')
+const needsPx = memo(prop =>
+  ['0', '0 0'].some(val => {
+    testDiv.style.cssText = `${prop}: ${val};`
+    return testDiv.style.cssText.slice(-3) == 'px;'
+  })
+)
+
+const selSep = /\s*,\s*/
+const processSelector = (sel, psel) =>
+  psel
+    .split(selSep)
+    .flatMap(ppart =>
+      sel
+        .split(selSep)
+        .map(spart =>
+          spart.includes('&')
+            ? spart.replace(/&/g, ppart)
+            : ppart + (spart[0] == ':' ? '' : ' ') + spart
+        )
+    )
+    .join(',\n')
+
 const specialSel = /^@(media|keyframes)/
 
 const wrap = (sel, body) => (sel && body ? `\n${sel} {\n${body}}\n` : '')
@@ -109,14 +132,7 @@ const appendSpecial = (sel, rules, psel = '', pctx = null) => {
 
 const appendRule = (sel, rules, psel = '', pctx = null) => {
   if (specialSel.test(sel)) return appendSpecial(sel, rules, psel, pctx)
-  if (psel && (!pctx || pctx.media)) {
-    sel = sel
-      .split(',')
-      .map(isel =>
-        isel.includes('&') ? isel.replace(/&/g, psel) : psel + (isel[0] == ':' ? '' : ' ') + isel
-      )
-      .join(', ')
-  }
+  if (psel && (!pctx || pctx.media)) sel = processSelector(sel, psel)
   if (pctx) pctx.rules += wrap(sel, rules.style)
   else addToSheet(sel, rules.style)
   rules.nest.forEach(n => appendRule(n.sel, n, sel, pctx))
@@ -125,7 +141,12 @@ const appendRule = (sel, rules, psel = '', pctx = null) => {
 const assignRule = (ctx, key, value) => {
   if (value && !key) (key = value), (value = '')
   if (!key) return
-  if (key[0] == '$') return (ctx.uname = value)
+  // special instructions
+  if (key[0] == '$') {
+    if (key == '$name') return (ctx.name = value)
+    if (key == '$compose') return (ctx.comp = value)
+  }
+  // helper handling
   let helper = helpers[key]
   if (helper) {
     if (typeof helper == 'function') helper = helper(...(value || '').split(' '))
@@ -135,12 +156,20 @@ const assignRule = (ctx, key, value) => {
     return
   }
   if (!value) return
+  // shorthand handling
   key = short[key] || key
+  // auto-prefix / invalid key warning
   if (!validProps[key]) {
     const prefixed = `-${vendorPrefix}-${key}`
     if (validProps[prefixed]) key = prefixed
     else if (debug && !key.startsWith('--')) console.warn('zaftig: unknown key', key)
   }
+  // auto-px
+  if (needsPx(key))
+    value = value
+      .split(' ')
+      .map(vpart => (isNaN(vpart) ? vpart : vpart + 'px'))
+      .join(' ')
   ctx.style += `  ${key}: ${value};\n`
 }
 
@@ -211,9 +240,9 @@ const createStyle = handleError(
   memo(rules => {
     const parsed = parseRules(rules)
     const className =
-      (parsed.uname ? parsed.uname.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
+      (parsed.name ? parsed.name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
     appendRule('.' + className, parsed)
-    return new Style(className, parsed.style)
+    return new Style((parsed.comp ? parsed.comp + ' ' : '') + className, parsed.style)
   })
 )
 

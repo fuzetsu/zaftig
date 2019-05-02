@@ -22,19 +22,21 @@ const isDebug = params.get('debug') !== 'false'
 z.setDebug(isDebug)
 
 z.global`
-  html, body { m 0;ff sans-serif;bc #445566;c white;fs 14px }
+  html, body { m 0;ff sans-serif;bc #445566;c white;fs 14 }
   a {
     c lightblue
     :visited { c limegreen }
   }
   pre { m 0 }
+  .text-success { c #28a745 !important }
+  .text-danger { c #dc3545 !important }
 `
 
 z.helper({
   flexCenter: 'd flex;ai center;jc center',
   mar: (num, side = '') => `m${side} ${num * 0.25}rem`,
   pad: (num, side = '') => `p${side} ${num * 0.25}rem`,
-  shadow: num => `box-shadow 0 0 ${num}px 0 rgba(0,0,0,0.5)`
+  shadow: num => `box-shadow 0 0 ${num} 0 rgba(0,0,0,0.5)`
 })
 
 window.z = z
@@ -42,13 +44,13 @@ window.z = z
 const btn = z`
   $name button
   d inline-block
-  br 4px
+  br 4
   c #445566;bc white
   pad 3
-  fs 16px
+  fs 16
   us none;cursor pointer
   transition transform 100ms
-  :active { transform scale(0.9) }
+  :active, &.active { transform scale(0.9) }
   @media (max-width: 800px) {
     pad 5
     color orange
@@ -60,13 +62,19 @@ const btn = z`
   }
 `
 
+const squareBtn = z`
+  $compose ${btn.class} text-danger
+  $name square-button
+  br 0
+`
+
 const tbox = z`
   $name text-box
   border none
   bc white
   pad 3
-  br 4px
-  fs 16px
+  br 4
+  fs 16
   transition transform 400ms
   :focus { transform scale(1.08) }
   &:focus + & {
@@ -108,8 +116,11 @@ class App extends Component {
         </div>
         <div>
           <span class=${btn} onclick=${() => this.setState({ count: count + 1 })}>Increase</span>
-          <span class=${z`w 60px;d inline-block;ta center;fs 2em`}>${count}</span>
+          <span class=${z`w 60;d inline-block;ta center;fs 2em`}>${count}</span>
           <span class=${btn} onclick=${() => this.setState({ count: count - 1 })}>Decrease</span>
+        </div>
+        <div>
+          <span class=${squareBtn}>Square Button</span>
         </div>
         <input
           placeholder="background color"
@@ -143,7 +154,7 @@ class App extends Component {
             bc white;c #445566
             pad 8
             mar 4
-            br 4px
+            br 4
             shadow 10
             columns ${isDebug ? 2 : 1}
           `}
