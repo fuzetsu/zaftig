@@ -83,7 +83,7 @@ Styles are separated by `;` or `\n`.
 
 `sel { /* rules */ }` creates a nested style. Use `&` within the selector to reference the parent selector similar to how [Less](http://lesscss.org/) works.
 
-There are a couple of special properties that can be used with in a `styleString`.
+There are a couple of special properties that can be used within a `styleString`.
 
 `$name` will prepend the given string to the generated class name to make it easier to read the DOM:
 
@@ -102,10 +102,38 @@ z`
   $compose btn btn-primary
   border none
 `
-// .class will output something like: 'btn btn-primary zd88dgd344-1'
+// .class will output something like: 'btn btn-primary z2djkf2342-1'
 ```
 
 This allows you to easily combine zaftig generated classes with external css classes that you've manually written or that are provided by a css framework/library.
+
+**Automatic px:** Zaftig will automatically append `px` to any numeric value provided to a css property that accepts `px` values.
+
+```js
+z`
+  margin 10
+  padding 100
+  width 5
+  height 50
+  box-shadow 0 2 4 0 rgba(0, 0, 0, 0.1)
+  opacity 0.5
+`
+```
+
+will generate a css class that looks like this:
+
+```css
+.z2djkf2342-1 {
+  margin: 10px;
+  padding: 100px;
+  width: 5px;
+  height: 50px;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+  opacity: 0.5;
+}
+```
+
+You can specify `px` manually if you prefer to, but `zaftig` will add it for you if you don't.
 
 <hr>
 
