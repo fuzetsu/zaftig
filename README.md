@@ -14,17 +14,23 @@ import z from 'https://unpkg.com/zaftig?module'
 import htm from 'https://unpkg.com/htm?module'
 const html = htm.bind(m)
 
-z.add('html,body', 'm 0;ff sans-serif;bc #445566;c white;fs 14px')
+z.global`
+  html, body {
+    m 0
+    ff sans-serif; fs 14
+    bc #445566; c white
+  }
+`
 
 const App = () => html`
-  <main class=${z`m 10px`}>
+  <main class=${z`m 10`}>
     <h1 class=${z`ta center`}>Header</h1>
     <button
       class=${z`
         border none
-        br 4px; p 0.75rem
+        br 4; p 0.75rem
         c #445566; bc white
-        fs 16px
+        fs 16
         cursor pointer
         transition transform 100ms
         &:active { transform scale(0.9) }
@@ -38,7 +44,7 @@ const App = () => html`
 m.mount(document.body, { view: () => App() })
 ```
 
-[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvAHgBMIA3AAgjYF4AOiAwAHUcIB8gtN24yWAeg6dJlEHBixqxCPQSIQABkQBGAEwgAvhXTZch-ACsEVOgybE8ELKNoAnYm4AL24wf1osbgByEmJROERFRQBXNFEAawBzfDosRWCMMF0sgH4sWjYU2GiZHz9A7ijwyJi4hKTU9OzcyMUsCGJCf2gAATQYAA9icsrqmFq0eoCgkmaIqNjieMTktMycvMU12aqamRl3OFXSKG5+bjX8ACMINDYACiwASgu0YPwGDYny2ZAoz0qAE9ohQYlEjABuMBgbhwDBoOAAWk0IzACOe1G4AGIACwkgCs5IAbFSEYSAO6EQYwJFwbimEmiSbRX5oS76IIAQXE924H2+90kj1uAAMZHIWFgMG9uNQoBg4HB+AASYDBGVRUxGLkyqzSWRybgsQimVXqzU6vUy4gYVWeGD+U2SAASMCBHqUNvNlqtzxS23o8pDdo1Wt1+qj0e4EP8bA93DQ9Bgiejz383E5kwR3FE3CM+AA7OT-DAsDmQ4TSRTqbTkwymYx65awGzTFSuV25NQUv44AES7Q3ox-IPuMR-Oi4IM9LJ54uwAFDUYjFg4LOAGSIDA6LgwbjAOcLjEb-xRODUDCwD7lgCcEqsXdNOeD0YAwlAIGoDJuAAWWzC0FUUMMIzQH8lCVN5zTlPk0CwfAKjSYgPjYWhhxwBgXihWEL04CAYHpRAxQlfgpWFURxW4KxvnUTRtF0fQ8HMCtEApaxbBATAcDwXJNXUdxGGYQxrAAXSsIA)
+[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvAHgBMIA3AAgjYF4AOiAwAHUcIB8gtN24yWAeg6dJlEHBixqxCPQSIQABkQBGAEwgAvhXTZch-ACsEVOgybE8ixdwDutABOANZw3E4ArnDE3BhhflpQ-hDEhNwASjAYOrFobNxYtNHctKkwgdxQEABGgRiBEPAyEFiiQTFY3GCBtJ0A5CTEonCIPhFoosEA5vh0WIpYKYQNUAACaDAAHsQA-IVsEbB9za3t3ABeXT39g8OjiuOTM3OK5xhgulN7tAdHMidtQIxEidbq9bgDYhDEZjCbTWa9RQg76-GDHNDuYogpL8bgg-DVCB5AAUWAAlP80Od8FMoLRqhgoAADGRybEUbjVH4AT24wFZcgK3CMArkYDA3DgGDQcAAtJoGmAANxdMKmAAsos51G4AGJ1eqAKyGgBsJpVOr8hBSMAFVhkLLQMkxMQAguJuLjiWTPZI8aRmQKWFgMETuNQoHE4PwACTAc5MzqmIxMqzSWSCliEUzhyNwaNxhPEDDhzzlVOSAASWTY5SU2fTgu4LGqESh9C1cgjUdj8cdTabXMCtYqaHotozA85FXVKtEwvwAHZDYEYFhO4Kdfqjabzdr-NbGBuxWqTcfwxFAnAgtw2kTGIFz8Q6jKUnpZM-pXAwEEk0YjFgcDngAZIg2S6JwMB8twn4yj+gSdHA1CMjAxJGPgACcPr2pOgqplqjYDgAwlU1DBNwACyE5NkorbtmghFKCGRLpo6MhYPghTjMQxJsLQ1ARDgDAEjyHLANwnCNH4iDcN6vrcO6ohyVYZLqJo2i6PoeDmIaiAAMzqtYtggJgOB4LM+bqO4jDMIY1gALpWEAA)
 
 ## Highlights
 
@@ -64,11 +70,11 @@ z`color green; background-color orange`
 z`
   color green
   background-color orange
-  &:focus {
+  :focus {
     margin 20px
-    &::placeholder { c orange }
+    ::placeholder { c orange }
   }
-  & > span { p 10px }
+  > span { p 10px }
 `
 z`c green;bc orange`
 ```
@@ -76,6 +82,47 @@ z`c green;bc orange`
 Styles are separated by `;` or `\n`.
 
 `sel { /* rules */ }` creates a nested style. Use `&` within the selector to reference the parent selector similar to how [Less](http://lesscss.org/) works.
+
+There are a couple of special properties that can be used with in a `styleString`.
+
+`$name` will prepend the given string to the generated class name to make it easier to read the DOM:
+
+```js
+z`
+  $name button
+  border none
+`
+// generated classname will look something like: 'button-z2djkf2342-1'
+```
+
+`$compose` will make `z` generate a list of classnames rather than just the generated one:
+
+```js
+z`
+  $compose btn btn-primary
+  border none
+`
+// .class will output something like: 'btn btn-primary zd88dgd344-1'
+```
+
+This allows you to easily combine zaftig generated classes with external css classes that you've manually written or that are provided by a css framework/library.
+
+<hr>
+
+### `` z.global`<styleString>` ``
+
+Parses given `stringString` and inserts as global styles.
+
+Example:
+
+```js
+z.global`
+  html, body {
+    font-family sans-serif
+    margin 0
+  }
+`
+```
 
 <hr>
 
