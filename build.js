@@ -25,10 +25,9 @@ const terserOut = Terser.minify(
 )
 
 const moduleToBrowser = code =>
-  `(function() {\n'use strict'\n${code.replace(
-    /export\s+default\s+([^\s]+)/i,
-    'window.$1 = $1'
-  )}\n})()`
+  `(function() {\n  'use strict'\n${code
+    .replace(/export\s+default\s+([^\s]+)/i, 'window.$1 = $1')
+    .replace(/^/gm, '  ')}\n})()`
 
 const bubleOut = buble.transform(moduleToBrowser(input), {
   modules: false,
