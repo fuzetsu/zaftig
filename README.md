@@ -52,7 +52,7 @@ m.mount(document.body, { view: () => App() })
 - 🙇 User defined helper functions `z.helper({})`
 - 💯 Self referencing nested styles `&`
 - 🅰️ Initial based css property shorthands _e.g. bc == background-color or d == display_
-- ⚙️ Automatic vendor prefixes (**incomplete**)
+- ⚙️ Basic automatic vendor prefixing for: Chrome, Safari, Firefox, Edge, Opera (webkit)
 
 ## API
 

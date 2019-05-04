@@ -32,7 +32,12 @@ const initials = str =>
     .replace(/[a-z]/g, '')
     .toLowerCase()
 
-const vendorPrefix = 'webkit'
+const vendorPrefix =
+  document.documentMode || /Edge\//.test(navigator.userAgent)
+    ? 'ms'
+    : navigator.vendor
+    ? 'webkit'
+    : 'moz'
 
 // list of popular properties that should have a higher shorthand priority
 const popular = [
@@ -63,11 +68,12 @@ const validProps = []
 const short = []
 for (const prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
   if (!prop.includes('-') && prop != 'length') {
-    const dashed = dash(prop)
+    let dashed = dash(prop)
     let init = initials(prop)
     if (prop.toLowerCase().startsWith(vendorPrefix)) {
       init = init.slice(1)
-      if (!short[init]) short[init] = dashed[0] == '-' ? dashed : '-' + dashed
+      dashed = dashed[0] == '-' ? dashed : '-' + dashed
+      if (!short[init]) short[init] = dashed
     } else short[init] = dashed
     validProps[dashed] = true
   }
