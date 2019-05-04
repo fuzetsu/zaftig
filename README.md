@@ -54,6 +54,26 @@ m.mount(document.body, { view: () => App() })
 - 🅰️ Initial based css property shorthands _e.g. bc == background-color or d == display_
 - ⚙️ Basic automatic vendor prefixing for: Chrome, Safari, Firefox, Edge, Opera (webkit)
 
+## Usage
+
+ES6 modules:
+
+```js
+import z from 'https://unpkg.com/zaftig?module'
+z`color green; background red`
+```
+
+ES5 browser environment:
+
+```html
+<script src="https://unpkg.com/zaftig/dist/zaftig.es5.min.js"></script>
+<script>
+  z`color green; background red`
+</script>
+```
+
+[You can see all the options here.](https://unpkg.com/zaftig@latest/dist/)
+
 ## API
 
 ### `` z`<styleString>` ``
