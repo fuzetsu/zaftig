@@ -1,7 +1,8 @@
 import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone.mjs'
-import _z from '../src/index.js'
+// import _z from '../src/index.js'
 // import _z from '../dist/zaftig.min.js'
-// import _z from 'https://unpkg.com/zaftig@latest'
+import _z from 'https://unpkg.com/zaftig@latest'
+// const _z = window.z
 
 // const p = (...args) => (console.log(...args), args[0])
 
