@@ -1,6 +1,6 @@
 {
   "name": "zaftig",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "css for your js",
   "source": "src/index.js",
   "main": "dist/zaftig.min.js",

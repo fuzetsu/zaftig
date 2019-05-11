@@ -64,8 +64,8 @@ const popular = [
 
 const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
 
-const validProps = []
-const short = []
+const validProps = {}
+const short = {}
 for (const prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
   if (!prop.includes('-') && prop != 'length') {
     let dashed = dash(prop)
