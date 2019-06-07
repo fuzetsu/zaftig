@@ -66,7 +66,7 @@ z`color green; background red`
 ES5 browser environment:
 
 ```html
-<script src="https://unpkg.com/zaftig/dist/zaftig.es5.min.js"></script>
+<script src="https://unpkg.com/zaftig"></script>
 <script>
   z`color green; background red`
 </script>
@@ -268,6 +268,19 @@ const newZ = z.new({
 ```
 
 All parser options are optional.
+
+**Example usage:**
+
+```js
+import zaftig from 'https://unpkg.com/zaftig?module'
+const z = zaftig.new({ parser: { OPEN: '[', CLOSE: ']' } })
+
+z.global`
+  html [ bc green ]
+`
+```
+
+[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvEAXwvW10QICsEqdBk2J4IWAA60ATsQAEALwxhiEAOZyw02ljkByEsQlxEAelMBXNBIDWa-HSymlK9QH4stACYXYegDpoQnDyCnIAvIrKqvZoMADuABTAchIY0nAw0ohyKQDyAAoAogByOXrIehRyAMIAMnkAykXlALp6cqydAJSBgQr4alC0AEYYUAAGgXJyJGRyyHIj1HJq0jBMcq2BE5QgmbDUqvQIPACsiACMbBwgmDh4DnACNPSMzDxsraxAA)
 
 **Warning:** Do not use a character that is valid in a CSS value, such as parentheses, `(` or `)`. Otherwise zaftig will be unable to properly parse css values.
 
