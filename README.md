@@ -190,6 +190,36 @@ z.global`
 
 Register helpers functions to be called from style strings.
 
+A helper can be a `styleString` or a function that returns a `styleString`.
+
+If the helper is a function it will receive arguments passed split by space (as seen in the `size` example).
+
+```js
+z.helper({
+  mx: x => `margin-left ${x}; margin-right ${x}`,
+  size: (h, w) => `h ${h}; w ${w}`,
+  shadow: 'box-shadow 0 2 4 2 rgba(0,0,0,0.5)'
+})
+
+z`
+  mx 10
+  size 50 100
+  shadow
+`
+```
+
+will generate:
+
+```css
+.z2djkf2342-1 {
+  margin-left: 10px;
+  margin-right: 10px;
+  height: 50px;
+  width: 100px;
+  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.5);
+}
+```
+
 <hr>
 
 ### `z.new(config)`
