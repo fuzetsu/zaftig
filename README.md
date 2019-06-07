@@ -1,4 +1,4 @@
-# Zaftig [![npm](https://img.shields.io/npm/v/zaftig.svg)](https://www.npmjs.com/package/zaftig) [![size](https://img.badgesize.io/https://unpkg.com/zaftig@latest.png?label=gzip&color=blue&compression=gzip)](https://unpkg.com/zaftig@latest)
+# Zaftig [![npm](https://img.shields.io/npm/v/zaftig.svg)](https://www.npmjs.com/package/zaftig) [![size](https://img.badgesize.io/https://unpkg.com/zaftig@latest/dist/zaftig.min.js.png?label=gzip&color=blue&compression=gzip)](https://unpkg.com/zaftig@latest/dist/zaftig.min.js)
 
 > Adjective, having a full rounded figure : pleasingly plump
 
@@ -157,6 +157,18 @@ You can specify `px` manually if you prefer to, but `zaftig` will add it for you
 
 <hr>
 
+### `z.setDebug(bool)`
+
+Enable/disable debug mode.
+
+In debug mode Zaftig will insert styles using `textContent` and will log to the console when an unknown css property is encountered.
+
+This is less efficient than the normal CSSOM method, but it allows you to modify styles using chrome dev tools.
+
+**NOTE:** if enabling, make sure to do so before using `` z`styleString` `` or things may break.
+
+<hr>
+
 ### `` z.global`<styleString>` ``
 
 Parses given `stringString` and inserts as global styles.
@@ -180,15 +192,44 @@ Register helpers functions to be called from style strings.
 
 <hr>
 
-### `z.setDebug(bool)`
+### `z.new(config)`
 
-Enable/disable debug mode.
+Creates a new instance of zaftig, with a separate style element, helpers and rule/parser cache.
 
-Debug mode should be enabled before any styles are created or unexpected things may happen.
+`config` is an optional object parameter that looks something like this:
 
-In debug mode Zaftig will insert styles using `textContent` and will log to the console when an unknown css property is encountered.
+```js
+const newZ = z.new({
+  // if you pass a style elem, you need to append it to the doc yourself
+  // if you don't pass one then zaftig will create and append one for you
+  style: document.head.appendChild(document.createElement('style')),
+  id: 'custom-id', // default is to generate one
+  helpers: { mx: x => `ml ${x}; mr ${x}` }, // default is {}
+  debug: true // default is false
+})
+```
 
-**NOTE:** This is less efficient than the normal CSSOM method, but it allows you to modify styles using chrome dev tools.
+All config options are optional.
+
+This is useful when you want to you get ensure you get a private/non global version of zaftig, or to render styles into a shadow DOM.
+
+#### Override parser options
+
+You can change how zaftig processes the style string syntax by passing the following options:
+
+```js
+const newZ = z.new({
+  parser: {
+    OPEN: '{', // block open
+    CLOSE: '}', // block close
+    BREAK: ';' // rule separator
+  }
+})
+```
+
+All parser options are optional.
+
+**Warning:** Do not use a character that is valid in a CSS value, such as parentheses, `(` or `)`. Otherwise zaftig will be unable to properly parse css values.
 
 ## Credits
 

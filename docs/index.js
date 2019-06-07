@@ -4,7 +4,7 @@ import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone
 import _z from 'https://unpkg.com/zaftig@latest'
 // const _z = window.z
 
-// const p = (...args) => (console.log(...args), args[0])
+const p = (...args) => (console.log(...args), args[0])
 
 let runTime = 0
 const z = Object.assign((...args) => {
@@ -17,6 +17,27 @@ const z = Object.assign((...args) => {
     runTime += performance.now() - start
   }
 }, _z)
+
+const style = {
+  sheet: {
+    cssRules: [],
+    insertRule: function(rule, idx) {
+      this.cssRules[idx] = rule
+    }
+  }
+}
+const fakeZ = _z.new({
+  id: 'sunboy',
+  style,
+  helpers: { sun: 'c orange & fs 100' },
+  parser: { OPEN: '[', CLOSE: ']', BREAK: '&' }
+})
+fakeZ`sun`
+fakeZ`
+  margin 10 & h 10
+  h1, h2 [ m 10 ]
+`
+p(style.sheet.cssRules)
 
 const params = new URLSearchParams(location.search)
 const isDebug = params.get('debug') !== 'false'

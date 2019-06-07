@@ -9,11 +9,12 @@ const buble = require('buble')
 
 const input = fss.readFileSync('src/index.js', 'utf8')
 
-const srcName = 'zaftig.js'
-const outName = 'zaftig.min.js'
-
-const es5SrcName = srcName.replace('js', 'es5.js')
-const es5OutName = outName.replace('min', 'es5.min')
+const globalName = 'z'
+const name = 'zaftig'
+const srcName = name + '.js'
+const outName = name + '.min.js'
+const es5SrcName = name + '.es5.js'
+const es5OutName = name + '.es5.min.js'
 
 const terserOut = Terser.minify(
   { [srcName]: input },
@@ -24,10 +25,33 @@ const terserOut = Terser.minify(
   }
 )
 
+// const p = (...args) => (console.log(...args), args[0])
+
+const umdBoiler = code => `;(function(root, factory) {
+  if(typeof define === 'function' && define.amd) define([], factory)
+  else if(typeof module === 'object' && module.exports) module.exports = factory()
+  else root.${globalName} = factory()
+})(typeof self !== 'undefined' ? self : this, function() {
+  'use strict'
+  var exports = {}
+${code}
+  return exports
+})
+`
+
 const moduleToBrowser = code =>
-  `(function() {\n  'use strict'\n${code
-    .replace(/export\s+default\s+([^\s]+)/i, 'window.$1 = $1')
-    .replace(/^/gm, '  ')}\n})()`
+  umdBoiler(
+    code
+      .replace(/export\s+(const|let|var)\s+([^\s]+)/gi, '$1 $2 = exports.$2')
+      .replace(/export\s+\{([^}]+)\}/, (_, names) =>
+        names
+          .split(',')
+          .map(name => `exports.${name} = ${name}`)
+          .join('\n')
+      )
+      .replace(/export\s+default\s+([^\s]+)/gi, 'exports = Object.assign($1, exports)')
+      .replace(/^/gm, '  ')
+  )
 
 const bubleOut = buble.transform(moduleToBrowser(input), {
   modules: false,

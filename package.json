@@ -1,9 +1,9 @@
 {
   "name": "zaftig",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "css for your js",
   "source": "src/index.js",
-  "main": "dist/zaftig.min.js",
+  "main": "dist/zaftig.es5.min.js",
   "module": "dist/zaftig.min.js",
   "scripts": {
     "build": "node build.js",
