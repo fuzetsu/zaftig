@@ -1,50 +1,13 @@
 # Zaftig [![npm](https://img.shields.io/npm/v/zaftig.svg)](https://www.npmjs.com/package/zaftig) [![size](https://img.badgesize.io/https://unpkg.com/zaftig@latest/dist/zaftig.min.js.png?label=gzip&color=blue&compression=gzip)](https://unpkg.com/zaftig@latest/dist/zaftig.min.js)
 
-> Adjective, having a full rounded figure : pleasingly plump
-
-Zaftig efficiently parses styles, generates a classname and inserts them into a style tag in the head of the page.
+Zaftig efficiently parses styles, generates a classname for them and inserts them a into a stylesheet in the head of the document.
 
 Passing the same style string will return the same classname.
 
-```jsx
-// works just as well with React and most other libraries
-import m from 'https://unpkg.com/mithril@2.0.0-rc.4?module'
-import z from 'https://unpkg.com/zaftig?module'
-
-import htm from 'https://unpkg.com/htm?module'
-const html = htm.bind(m)
-
-z.global`
-  html, body {
-    m 0
-    ff sans-serif; fs 14
-    bc #445566; c white
-  }
-`
-
-const App = () => html`
-  <main class=${z`m 10`}>
-    <h1 class=${z`ta center`}>Header</h1>
-    <button
-      class=${z`
-        border none
-        br 4; p 0.75rem
-        c #445566; bc white
-        fs 16
-        cursor pointer
-        transition transform 100ms
-        &:active { transform scale(0.9) }
-      `}
-    >
-      Click Me
-    </button>
-  </main>
-`
-
-m.mount(document.body, { view: () => App() })
+```js
+z`display flex` // .zjsdkk43-1
+z`display flex` // .zjsdkk43-1
 ```
-
-[playground](https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvAHgBMIA3AAgjYF4AOiAwAHUcIB8gtN24yWAeg6dJlEHBixqxCPQSIQABkQBGAEwgAvhXTZch-ACsEVOgybE8ixdwDutABOANZw3E4ArnDE3BhhflpQ-hDEhNwASjAYOrFobNxYtNHctKkwgdxQEABGgRiBEPAyEFiiQTFY3GCBtJ0A5CTEonCIPhFoosEA5vh0WIpYKYQNUAAC5vhGmwC0gdT4ACwA-IVsEbB9za3t3ABeXT39g8OjiuOTM3OKtxhgulMnWhnC4yK5tQIxEidbq9bgDYhDEZjCbTWa9RRQwHAmCXNDuYpQpL8bhQ-DVCB5AAUWAAlKC0Ld8FMoLRqhgoAADGRyQkUbjVIEAT24wG5cgK3CMYrkYDA3DgGDQcG2mgaYAA3F0wqYDtL+dRuABiA4HACspoAbBbNQa-IQUjAxVYZFy0DJ8TEAILibjEyk032SEmkTlilhYDAU7jUKBxOD8AAkwFuHM6piMHKs0lk4pYhFM0djcHjSZTxAw0c85UzkgAElk2OUlPns+LuCxqhEEfQ9XIY3HE8nXW22wLAo2Kmh6I6cyP+RUDprRJL8AB2U2BGBYXvig3Gs2W636-z2xg7mXai3n6MRQJwILcNoUxiBa-EOpKlJ6WTvxVwMBBGmRhGFgcDXgAZIg2S6JwMAitwv5KgBgSdHA1DsjAlJbAAnAGzqzuKmZ6q2I4AMJVNQwTcAAsjObZKJ23ZoCRSgRhS2aujIWD4IU4zEJSbC0NQEQ4AwZJCnywDcJwjR+Ig3D+oG3DeqIilWDS6iaNouj6HgpiIKa2HWLYICYDgeCzMW6juIwzCGNYAC6VhAA)
 
 ## Highlights
 
@@ -53,6 +16,53 @@ m.mount(document.body, { view: () => App() })
 - 💯 Self referencing nested styles `&`
 - 🅰️ Initial based css property shorthands _e.g. bc == background-color or d == display_
 - ⚙️ Basic automatic vendor prefixing for: Chrome, Safari, Firefox, Edge, Opera (webkit)
+
+Example:
+
+```jsx
+// works just as well with React and other libraries/frameworks
+import m from 'https://unpkg.com/mithril@2.0.0-rc.4?module'
+import z from 'https://unpkg.com/zaftig?module'
+
+z.global`
+  html, body {
+    m 10
+    ff sans-serif; fs 14
+  }
+`
+
+const button =
+  'button' +
+  z`
+    --btn-color #4444dd
+    border none
+    p 0.75rem
+    line-height 1.2rem
+    color var(--btn-color)
+    border 0.5 solid var(--btn-color)
+    bc white
+    fs 16
+    cursor pointer
+    transition transform 100ms
+    outline none
+    :active { transform scale(0.9) }
+    &.primary { bc var(--btn-color); c white }
+    &.rounded { br 4 }
+  `
+
+const App = () =>
+  m('main' + z`button { m 5 }`, [
+    m(button, 'Normal'),
+    m(button + '.primary.rounded', 'Primary'),
+    m(button + z`$compose rounded; --btn-color #ee5555`, 'Warning'),
+    m(button + z`--btn-color green`, 'Success'),
+    m(button + z`$compose primary rounded; --btn-color green`, 'Success + Primary')
+  ])
+
+m.mount(document.body, { view: () => App() })
+```
+
+[playground](https://flems.io/#0=N4IgtglgJlA2CmIBcBWADAOgEwEYA0IAZhAgM7IDaoAdgIZiJIgYAWALmLCAQMYD21NvEHIQAHigQAbgAJoAXgA6IWgAdVygHyLqMmTrEB6SVM3cQpeAh5sIA8kzRIcWEAF88Neo2YArcrwCQiJMhoYyAO58AE4A1qQyvgCupGwytAkRVrCREGwsMgBK8LQ26dRQMmB8qTJ8+fDRMrAQAEbRtNEQ8KQ6EGCqMWlgMoTRfCMA5OxsqqRIYUnUqrEA5hj8YIaQ+V2wAAJYGJhoALTRPBgALAD81VBJCJN9A0MyAF6j41MzcwuGSxW602hnetEItlWdz4DyeOh07wwq1gfFatFgAAMdHp2Jw8DJWjCAJ4yYDYvRVGQ4NDkvSEQgyUi0aikU6WLqEADcowSOCu5LcOix1B0-BZaVaSTYbAEMiUuhkk0l0oEkxkAGpye9hRSZKdTq02NRTvwUU0AMRXK1XGC0gkxKCNGTUATwO2qGSYADsKGi8DAdpa1HgpxY8Agq3YVOwfoDCr0ppiMiknQAFPrDcbE9EAJR2wnRR1NTAoRl8FqVFPRdMGo0m8sxPPxgk8SIsPJu5uEXkANjtPCS0VIScGEEEjTtbA6LLydl0U+ZpEIMRG1LQYF6zb4UqD8GdrrtSFKtike+AMgXLOX0RGpB46PgqcwAE4czJBc2AGQYVRdMCdElz1aVsqxrTN6zNHNuVbCJ2yEd87W-cYlkdSogKaK4EIVYVRXsNIAEF1DlGRUzfeRtAVMBU0mf8xzVdUPgxZUZV0c8RlLNwMXxCg7So5iBHxSYADkV3RSYczwXjU343QGMmH8-wAjBkIqeAoEmQSAAVFOiIlxMk5s+KlFiNUYgASTZBksGQVNQ7kMzrbMZHNeB4BQdyUC4xUAHVOmoMdVn0qSZNM7UHKzBsmlWP1hC8yYAGUkh4HgelIILDOk4zZQY7ULImKy91-foAJs7dVKgezawis0ZGi1zqDixLktS0ztOK3TxPJABdJsdDADBqiWNhUygPgBwYQQMEJKAiXxc8pG6CIkBIsjNBkQjVFI98m3MSxrFsexRGfZx3E8EA6AYUQNlIAIQDFYI2FEdwurcIA)
 
 ## Usage
 
@@ -72,15 +82,25 @@ ES5 browser environment:
 </script>
 ```
 
+Or download the script and use it locally.
+
 [You can see all the options here.](https://unpkg.com/zaftig@latest/dist/)
 
 ## API
 
 ### `` z`<styleString>` ``
 
-Generates className and inserts styles into stylesheet, returns a `Style { class, style }` object.
+Generates a `className` for the given `styleString` and inserts it into a stylesheet in the head of the document.
 
-When a `Style` object has `.toString()` or `.valueOf()` called it will return the className or the className with a dot prefixed respectively.
+It returns a `Style` object `{ class, className, style }`.
+
+When `.toString()` is called on a `Style` object the `className` will be returned.
+
+When `.valueOf()` is called it will return the `className` with a dot prefixed. This allows you to directly concatenate style objects to tag names when using a hyperscript helper like mithril offers:
+
+```js
+m('h1' + z`margin auto`) ==> m('h1.zfwe983')
+```
 
 Example expressions:
 
