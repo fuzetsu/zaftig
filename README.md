@@ -88,7 +88,7 @@ Or download the script and use it locally.
 
 ## API
 
-Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.helper`](#helper) ~~ [`z.new`]()
+Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.helper`](#helper) ~~ [`z.new`](#new)
 
 <hr>
 
