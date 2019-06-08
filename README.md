@@ -88,6 +88,12 @@ Or download the script and use it locally.
 
 ## API
 
+Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.helper`](#helper) ~~ [`z.new`]()
+
+<hr>
+
+<a name="css"></a>
+
 ### `` z`<styleString>` ``
 
 Generates a `className` for the given `styleString` and inserts it into a stylesheet in the head of the document.
@@ -177,6 +183,8 @@ You can specify `px` manually if you prefer to, but `zaftig` will add it for you
 
 <hr>
 
+<a name="set-debug"></a>
+
 ### `z.setDebug(bool)`
 
 Enable/disable debug mode.
@@ -188,6 +196,8 @@ This is less efficient than the normal CSSOM method, but it allows you to modify
 **NOTE:** if enabling, make sure to do so before using `` z`styleString` `` or things may break.
 
 <hr>
+
+<a name="global"></a>
 
 ### `` z.global`<styleString>` ``
 
@@ -205,6 +215,8 @@ z.global`
 ```
 
 <hr>
+
+<a name="helper"></a>
 
 ### `z.helper({ helperName: helperString | helperFunction, ... })`
 
@@ -241,6 +253,8 @@ will generate:
 ```
 
 <hr>
+
+<a name="new"></a>
 
 ### `z.new(config)`
 
