@@ -49,10 +49,10 @@ const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.g
 const validProps = {}
 const short = {}
 for (const prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
-  if (!prop.includes('-') && prop != 'length') {
+  if (prop.indexOf('-') < 0 && prop != 'length') {
     let dashed = dash(prop)
     let init = initials(prop)
-    if (prop.toLowerCase().startsWith(vendorPrefix)) {
+    if (prop.toLowerCase().indexOf(vendorPrefix) == 0) {
       init = init.slice(1)
       dashed = dashed[0] == '-' ? dashed : '-' + dashed
       if (!short[init]) short[init] = dashed
@@ -69,7 +69,6 @@ const needsPx = memo(prop =>
   })
 )
 
-const specialSel = /^@(media|keyframes)/
 const selSep = /\s*,\s*/
 
 const processSelector = (sel, psel) =>
@@ -78,25 +77,25 @@ const processSelector = (sel, psel) =>
     .flatMap(ppart =>
       sel
         .split(selSep)
-        .map(spart =>
-          spart.includes('&')
-            ? spart.replace(/&/g, ppart)
-            : ppart + (spart[0] == ':' ? '' : ' ') + spart
+        .map(part =>
+          part.indexOf('&') >= 0
+            ? part.replace(/&/g, ppart)
+            : ppart + (part[0] == ':' ? '' : ' ') + part
         )
     )
     .join(',\n')
 
 class Style {
   constructor(className, style) {
-    this.className = className
     this.class = className
+    this.className = className
     this.style = style
   }
   toString() {
-    return this.className
+    return this.class
   }
   valueOf() {
-    return '.' + this.className
+    return '.' + this.class
   }
 }
 
@@ -121,13 +120,13 @@ const makeZ = (conf = {}) => {
   const {
     helpers = {},
     parser = {},
+    unit = 'px',
     id = 'z' +
       Math.random()
         .toString(36)
         .slice(2)
   } = conf
   let { style, debug = false } = conf
-  let sheet = style && style.sheet
   let idCount = 0
 
   const addToSheet = (sel, body) => {
@@ -136,24 +135,23 @@ const makeZ = (conf = {}) => {
       if (!style) {
         style = document.head.appendChild(document.createElement('style'))
         style.id = id
-        sheet = style.sheet
       }
       if (debug) style.textContent += rule
-      else sheet.insertRule(rule, sheet.cssRules.length)
+      else style.sheet.insertRule(rule, style.sheet.cssRules.length)
     }
   }
 
-  const appendSpecialRule = spec => {
-    if (spec.media) {
-      const query = spec.sel.slice(spec.sel.indexOf(' ') + 1)
-      spec.sub.forEach(c => c.media && (c.sel += ' and ' + query))
+  const appendSpecialRule = ctx => {
+    if (ctx.media) {
+      const query = ctx.sel.slice(ctx.sel.indexOf(' ') + 1)
+      ctx.sub.forEach(c => c.media && (c.sel += ' and ' + query))
     }
-    if (spec.rules) addToSheet(spec.sel, spec.rules.replace(/^/gm, '  ') + '\n')
-    if (spec.sub) spec.sub.forEach(appendSpecialRule)
+    if (ctx.rules) addToSheet(ctx.sel, ctx.rules.replace(/^/gm, '  ') + '\n')
+    if (ctx.sub) ctx.sub.forEach(appendSpecialRule)
   }
 
   const appendSpecial = (sel, rules, psel = '', pctx = null) => {
-    const media = sel.startsWith('@media')
+    const media = sel.indexOf('@media') == 0
     const ctx = {
       sel,
       media,
@@ -166,11 +164,11 @@ const makeZ = (conf = {}) => {
   }
 
   const appendRule = (sel, rules, psel = '', pctx = null) => {
-    if (specialSel.test(sel)) return appendSpecial(sel, rules, psel, pctx)
+    if (/^@(media|keyframes)/.test(sel)) return appendSpecial(sel, rules, psel, pctx)
     if (psel && (!pctx || pctx.media)) sel = processSelector(sel, psel)
     if (pctx) pctx.rules += wrap(sel, rules.style)
     else addToSheet(sel, rules.style)
-    rules.nest.forEach(n => appendRule(n.sel, n, sel, pctx))
+    rules.nest.forEach(n => appendRule(n.sel, n, sel == ':root' ? '' : sel, pctx))
   }
 
   const assignRule = (ctx, key, value) => {
@@ -180,6 +178,8 @@ const makeZ = (conf = {}) => {
     if (key[0] == '$') {
       if (key == '$name') return (ctx.name = value)
       if (key == '$compose') return (ctx.comp = value)
+      // everything else is a css var
+      key = '--' + key.slice(1)
     }
     // helper handling
     let helper = helpers[key]
@@ -197,13 +197,15 @@ const makeZ = (conf = {}) => {
     if (!validProps[key]) {
       const prefixed = `-${vendorPrefix}-${key}`
       if (validProps[prefixed]) key = prefixed
-      else if (debug && !key.startsWith('--')) console.warn('zaftig: unknown key', key)
+      else if (debug && key.indexOf('--') < 0) console.warn('zaftig: unknown key', key)
     }
+    // replace $ var refs with css var refs
+    if (value.indexOf('$') >= 0) value = value.replace(/\$([a-z0-9-]+)/gi, 'var(--$1)')
     // auto-px
     if (needsPx(key))
       value = value
         .split(' ')
-        .map(vpart => (isNaN(vpart) ? vpart : vpart + 'px'))
+        .map(part => (isNaN(part) ? part : part + unit))
         .join(' ')
     ctx.style += `  ${key}: ${value};\n`
   }
@@ -221,7 +223,7 @@ const makeZ = (conf = {}) => {
     let depth = 0
     let quote = ''
     let char, curProp
-    for (let i = 0, len = str.length; i < len; i++) {
+    for (let i = 0; i < str.length; i++) {
       char = str[i]
       if (char == '\n' || ((char == BREAK || char == CLOSE) && !quote)) {
         assignRule(ctx[depth], curProp, buffer.trim() + quote)
@@ -229,7 +231,7 @@ const makeZ = (conf = {}) => {
         mode = PROP
         curProp = buffer = quote = ''
       } else if (char == OPEN && !quote) {
-        ctx[++depth] = { sel: `${curProp} ${buffer}`.trim(), style: '', nest: [] }
+        ctx[++depth] = { sel: (curProp + ' ' + buffer).trim(), style: '', nest: [] }
         mode = PROP
         curProp = buffer = ''
       } else if (mode == PROP) {
@@ -251,19 +253,28 @@ const makeZ = (conf = {}) => {
     return ctx[0]
   })
 
+  const createKeyframes = handleError(
+    memo(rules => {
+      const name = 'anim-' + id + '-' + (idCount += 1)
+      appendRule('@keyframes ' + name, parseRules(rules))
+      return name
+    })
+  )
+
   const createStyle = handleError(
     memo(rules => {
       const parsed = parseRules(rules)
       const className =
         (parsed.name ? parsed.name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
       appendRule('.' + className, parsed)
-      return new Style((parsed.comp ? parsed.comp + ' ' : '') + className, parsed.style)
+      return new Style(className + (parsed.comp ? ' ' + parsed.comp : ''), parsed.style)
     })
   )
 
   const z = (parts, ...args) => handleTemplate(parts, args, createStyle)
   z.global = (parts, ...args) =>
-    handleTemplate(parts, args, handleError(rules => appendRule('', parseRules(rules))))
+    handleTemplate(parts, args, handleError(rules => appendRule(':root', parseRules(rules))))
+  z.anim = (parts, ...args) => handleTemplate(parts, args, createKeyframes)
   z.getSheet = () => style
   z.helper = spec => Object.assign(helpers, spec)
   z.setDebug = flag => (debug = flag)

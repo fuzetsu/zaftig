@@ -1,7 +1,7 @@
 import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone.mjs'
 // import _z from '../src/index.js'
 // import _z from '../dist/zaftig.min.js'
-import _z from 'https://unpkg.com/zaftig@latest'
+import _z from 'https://unpkg.com/zaftig@latest?module'
 // const _z = window.z
 
 const p = (...args) => (console.log(...args), args[0])
@@ -29,6 +29,7 @@ const style = {
 const fakeZ = _z.new({
   id: 'sunboy',
   style,
+  unit: 'rem',
   helpers: { sun: 'c orange & fs 100' },
   parser: { OPEN: '[', CLOSE: ']', BREAK: '&' }
 })
@@ -44,7 +45,12 @@ const isDebug = params.get('debug') !== 'false'
 z.setDebug(isDebug)
 
 z.global`
-  html, body { m 0;ff sans-serif;bc #445566;c white;fs 14 }
+  ff sans-serif
+  bc #445566
+  c white
+  fs 14
+
+  body { m 0 }
   a {
     c lightblue
     :visited { c limegreen }
@@ -109,6 +115,11 @@ const tbox = z`
   }
 `
 
+const spin = z.anim`
+  50% { transform rotate(180deg) scale(2) }
+  100% { transform rotate(360deg) scale(1) }
+`
+
 class App extends Component {
   render(_, { count = 0, exp = '', color = '' }) {
     const style = z`${exp}`
@@ -127,11 +138,7 @@ class App extends Component {
         <div
           class=${z`
             fs 2em;fw bold;mar 3
-            animation spin 3s linear infinite
-            @keyframes spin {
-              50% { transform rotate(180deg) scale(2) }
-              100% { transform rotate(360deg) scale(1) }
-            }
+            animation ${spin} 3s linear infinite
           `}
         >
           Zaftig
