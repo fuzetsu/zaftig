@@ -62,7 +62,7 @@ const App = () =>
 m.render(document.body, App())
 ```
 
-![example](/docs/img/example.png)
+[![example](/docs/img/example.png)][example-playground]
 
 [playground][example-playground]
 
