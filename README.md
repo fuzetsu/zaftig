@@ -25,38 +25,37 @@ import m from 'https://unpkg.com/mithril@2.0.0-rc.4?module'
 import z from 'https://unpkg.com/zaftig?module'
 
 z.global`
-  html, body {
-    m 10
-    ff sans-serif; fs 14
-  }
+  $btn-color #4444dd
+  ff sans-serif
+  fs 14
+  m 10
 `
 
-const button =
+const btn =
   'button' +
   z`
-    --btn-color #4444dd
     border none
     p 0.75rem
     line-height 1.2rem
-    color var(--btn-color)
-    border 0.5 solid var(--btn-color)
+    color $btn-color
+    border 0.5 solid $btn-color
     bc white
     fs 16
     cursor pointer
     transition transform 100ms
     outline none
     :active { transform scale(0.9) }
-    &.primary { bc var(--btn-color); c white }
+    &.primary { bc $btn-color; c white }
     &.rounded { br 4 }
   `
 
 const App = () =>
-  m('main' + z`button { m 5 }`, [
-    m(button, 'Normal'),
-    m(button + '.primary.rounded', 'Primary'),
-    m(button + z`$compose rounded; --btn-color #ee5555`, 'Warning'),
-    m(button + z`--btn-color green`, 'Success'),
-    m(button + z`$compose primary rounded; --btn-color green`, 'Success + Primary')
+  m('main' + z`${btn} { m 5 }`, [
+    m(btn, 'Normal'),
+    m(btn + '.primary.rounded', 'Primary'),
+    m(btn + z`$compose rounded; $btn-color #ee5555`, 'Warning'),
+    m(btn + z`$btn-color green`, 'Success'),
+    m(btn + z`$compose primary rounded; $btn-color green`, 'Success + Primary')
   ])
 
 m.render(document.body, App())
@@ -384,4 +383,4 @@ z.global`
 Heavily inspired by [bss](https://github.com/porsager/bss) by [Rasmus Porsager](https://github.com/porsager).
 
 [parser-config-playground]: https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvEAXwvW10QICsEqdBk2J4IWAA60ATsQAEALwxhiEAOZyw02ljkByEsQlxEAelMBXNBIDWa-HSymlK9QH4stACYXYegDpoQnDyCnIAvIrKqvZoMADuABTAchIY0nAw0ohyKQDyAAoAogByOXrIehRyAMIAMnkAykXlALp6cqydAJSBgQr4alC0AEYYUAAGgXJyJGRyyHIj1HJq0jBMcq2BE5QgmbDUqvQIPACsiACMbBwgmDh4DnACNPSMzDxsraxAA
-[example-playground]: https://flems.io/#0=N4IgtglgJlA2CmIBcBWADAOgEwEYA0IAZhAgM7IDaoAdgIZiJIgYAWALmLCAQMYD21NvEHIQAHigQAbgAJoAXgA6IWgAdVygHyLqMmTrEB6SVM3cQpeAh5sIA8kzRIcWEAF88Neo2YArcrwCQiJMhoYyAO58AE4A1qQyvgCupGwytAkRVrCREGwsMgBK8LQ26dRQMmB8qTJ8+fDRMrAQAEbRtNEQ8KQ6EGCqMWlgMoTRfCMA5OxsqqRIYUnUqrEA5hj8YIaQ+V2wAAJYGJhoALTRPBgALAD81VBJCJN9A0MyAF6j41MzcwuGSxW602hnetEItlWdz4DyeOh07wwq1gfFatFgAAMdHoACStNjUU78FFNADEVwpVxg2NGhBkpFo1FIp0sXUINMICRwVxpIxwaB0WOoOn4TLS+N0Sl0MkmrSSbDYAkmMgA1DT3kK9HpWjEoI0ZNQBPAaXpVDJMAB2FDReBgE3NCDUeCnFjwCCrdgyHDYG126V6YkxGR4glEvgk+066J6pqYFD08PQYMSsMR-0yVo8SIsPLG9Ocr0ANntPCS0VIQcGjqE0XtbA6TLydl09cZpEIMT5aDQYF66b48paToNRvtSFKtik8BkwBkraZHeiI1IPHR8AAFJgAJwAShkbntADIMKoumBOgBPGcZrMhwmB6IAbhkWYiOaE+6PGHGSz1lVn7QyFcn7SkKIr2GkACC6gyPIMjrnu8jaNKYDrpM56OsqKofBiOLABKbjXiM8ZuBieAyBQ9qoRK5GTAAcp26KTDueBUeuEqqjKJ5npe34DhU8BQJMtEAAo8dEF7Max6bUQSnEajimyDJYMg-gJUDPneqZBqS8DwCgBkoGRMoAOqdNQjqrFJbEcdhCkpg+MirDawjGZMADKSQ8DwPSkNZMnsXJdm4UpNTTqe-SXqp-F-ppDnhkGzl6dQbmed5vmcWJkUScxNIALo7vC1BgN+wgxuuUB8KWDCCBgOpQBe5HQaoCGFdQ5iWNYtj2KIKBIFgaDuJ4IB0AwogbKQAQgKKwRsKI7h5W4QA
+[example-playground]: https://flems.io/#0=N4IgtglgJlA2CmIBcBWADAOgEwEYA0IAZhAgM7IDaoAdgIZiJIgYAWALmLCAQMYD21NvEHIQAHigQAbgAJoAXgA6IWgAdVygHyLqMmTrEB6SVM3cQpeAh5sIA8kzRIcWEAF88Neo2YArcrwCQiJMhoYyAO58AE4A1qQyvgCupGwytAkRVrCREGwsMgBK8LQ26dRQMnz58NEysBAARtG00RDwpIaELQxRcaQ6EGCqMWlgMt184wDk7GyqpEhhSdSqsQDmGPxghpD5bbAAAlgYmGgAtNE8GAAsAPxgfFBJCNODw6MyAF4T0VMyszY80Wy1WGy2U0MX1ohFs6weTxe8De1B0Xww61gfEatFgAAMdHoACSNNjUc78LF1ADENzpNxghImhBkpFo1FI50sbUITMICRwNyZ4xwaB0BNR1H4HLSpN0Sl0AMaSSBAmmMgA1EyvhK9HpGjEoLUZNQBPAmXpVDJMAB2FDReBgC31CDUeDnFjwCDrdgyHDYB1OxV6SkxGQkskUvhU50G6JGuqYFCs6PQcNyqMx4MyRo8SIsPLm7P8v0ANmdPCS0VIYZGrqE0WdbBaHLydl0zfZpEIMRFaDQYAG2b4KoabpNZudSFKtik8BkwBknY5Pei41IPFx8AAFJgAJwAShkbmdADIMKo2mBWgBPBc5vMR8mh6IAbhkeYiBaEx7PGD+KxGpUi7NDINy-oqEo6NKqQyAAguoMjyDI25HvI2iKmA27TNerrqhq3x4kSwBym497jMmbh4ngMgUM6WFyjR0wAHK9ri0wHng9HbnKmoAheV63v+I4VPAUDTExAAKgnRDeHFcdmDFknxOpEtsIyWDIAGiVA75PpmYbUvA8AoKZKDUQCADqrTUK66zydxvEEapGYvjI6wOsIFnTAAykkPA8B0pAOYpPHKc5RHqXwmmXkMt5aSJQF6a50Zhh5xnUN5fkBUFfHSXFskcUyAC6B46DoYD-sICbblAfCVgwggYAaUA3jRCGqKhZXUOYljWLY9iiCgSBYGg7ieCAdAMKIWykAEIDSsEbCiO4xVuEAA
