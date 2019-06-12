@@ -172,9 +172,9 @@ z`
 `
 ```
 
-Will generate a class that looks like this:
-
 ```css
+/* generated css */
+
 :root {
   --bg-color: black;
   --fg-color: white;
@@ -203,9 +203,9 @@ z`
 `
 ```
 
-will generate a css class that looks like this:
-
 ```css
+/* generated css */
+
 .z2djkf2342-1 {
   margin: 10px;
   padding: 100px;
@@ -228,9 +228,9 @@ Enable/disable debug mode.
 
 In debug mode Zaftig will insert styles using `textContent` and will log to the console when an unknown css property is encountered.
 
-This is less efficient than the normal CSSOM method, but it allows you to modify styles using chrome dev tools.
+`textContent` is much less efficient than the non debug CSSOM method, but it allows you to modify the styles using chrome dev tools.
 
-**NOTE:** if enabling, make sure to do so before using `` z`styleString` `` or things may break.
+**NOTE:** make sure to call `setDebug` before inserting any styles
 
 <hr>
 
@@ -238,9 +238,7 @@ This is less efficient than the normal CSSOM method, but it allows you to modify
 
 ### `` z.global`<styleString>` ``
 
-Parses given `stringString` and inserts as global styles.
-
-Example:
+Appends global styles. Multiple calls with the same string will result in the style being appended multiple times.
 
 ```js
 z.global`
@@ -257,9 +255,7 @@ z.global`
 
 ### `` z.anim`<styleString>` ``
 
-Generates keyframe animation for given `stringString`. It returns the name of the animation.
-
-Example:
+Generates an `@keyframes` for the given `styleString`. It returns the generated name.
 
 ```js
 const grow = z.anim`
@@ -280,7 +276,7 @@ Register helpers functions to be called from style strings.
 
 A helper can be a `styleString` or a function that returns a `styleString`.
 
-If the helper is a function it will receive arguments passed split by space (as seen in the `size` example).
+If the helper is a function it will receive arguments, as seen in the `size` example below.
 
 ```js
 z.helper({
@@ -296,9 +292,9 @@ z`
 `
 ```
 
-will generate:
-
 ```css
+/* generated css */
+
 .z2djkf2342-1 {
   margin-left: 10px;
   margin-right: 10px;
@@ -343,8 +339,6 @@ const newZ = z.new({
 })
 ```
 
-All config options are optional.
-
 Creating a new instance is useful when you want to you ensure you get a private/non global version of zaftig, or to render styles into a shadow DOM.
 
 #### Override parser options
@@ -360,10 +354,6 @@ const newZ = z.new({
   }
 })
 ```
-
-All parser options are optional.
-
-**Example usage:**
 
 ```js
 import zaftig from 'https://unpkg.com/zaftig?module'
