@@ -74,14 +74,18 @@ const selSep = /\s*,\s*/
 const processSelector = (sel, psel) =>
   psel
     .split(selSep)
-    .flatMap(ppart =>
-      sel
-        .split(selSep)
-        .map(part =>
-          part.indexOf('&') >= 0
-            ? part.replace(/&/g, ppart)
-            : ppart + (part[0] == ':' ? '' : ' ') + part
-        )
+    .reduce(
+      (acc, ppart) =>
+        acc.concat(
+          sel
+            .split(selSep)
+            .map(part =>
+              part.indexOf('&') >= 0
+                ? part.replace(/&/g, ppart)
+                : ppart + (part[0] == ':' ? '' : ' ') + part
+            )
+        ),
+      []
     )
     .join(',\n')
 
