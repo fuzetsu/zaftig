@@ -171,7 +171,7 @@ class App extends Component {
       }),
       m(
         'div' + z`pad 2;fs 1.5em;ff monospace;ta center`,
-        m('p', style.valueOf(), ' ', ' = ', style.style || m('em', 'type something')),
+        m('p', style.valueOf(), ' = ', style.style || m('em', 'type something')),
         m(
           'p',
           'zaftig runtime ',

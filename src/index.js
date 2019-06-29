@@ -33,6 +33,7 @@ const popular = [
   'fontSize',
   'top',
   'right',
+  'bottom',
   'borderRadius',
   'textAlign',
   'textDecoration',
