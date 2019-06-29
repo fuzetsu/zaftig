@@ -150,7 +150,7 @@ const makeZ = (conf = {}) => {
       const query = ctx.sel.slice(ctx.sel.indexOf(' ') + 1)
       ctx.sub.forEach(c => c.media && (c.sel += ' and ' + query))
     }
-    if (ctx.rules) addToSheet(ctx.sel, ctx.rules.replace(/^/gm, '  ') + '\n')
+    if (ctx.rul) addToSheet(ctx.sel, ctx.rul.replace(/^/gm, '  ') + '\n')
     if (ctx.sub) ctx.sub.forEach(appendSpecialRule)
   }
 
@@ -160,9 +160,9 @@ const makeZ = (conf = {}) => {
       sel,
       media,
       sub: [],
-      rules: media ? wrap(psel, rules.style) : ''
+      rul: media ? wrap(psel, rules.rul) : ''
     }
-    rules.nest.forEach(n => appendRule(n.sel, n, psel, ctx))
+    rules.sub.forEach(n => appendRule(n.sel, n, psel, ctx))
     if (pctx) pctx.sub.push(ctx)
     else appendSpecialRule(ctx)
   }
@@ -170,9 +170,14 @@ const makeZ = (conf = {}) => {
   const appendRule = (sel, rules, psel = '', pctx = null) => {
     if (/^@(media|keyframes)/.test(sel)) return appendSpecial(sel, rules, psel, pctx)
     if (psel && (!pctx || pctx.media)) sel = processSelector(sel, psel)
-    if (pctx) pctx.rules += wrap(sel, rules.style)
-    else addToSheet(sel, rules.style)
-    rules.nest.forEach(n => appendRule(n.sel, n, sel == ':root' ? '' : sel, pctx))
+    if (pctx) pctx.rul += wrap(sel, rules.rul)
+    else addToSheet(sel, rules.rul)
+    rules.sub.forEach(n => appendRule(n.sel, n, sel == ':root' ? '' : sel, pctx))
+  }
+
+  const runHelper = (key, value) => {
+    const helper = helpers[key]
+    return typeof helper === 'function' ? helper(...(value || '').split(' ')) : helper
   }
 
   const assignRule = (ctx, key, value) => {
@@ -181,17 +186,16 @@ const makeZ = (conf = {}) => {
     // special instructions
     if (key[0] == '$') {
       if (key == '$name') return (ctx.name = value)
-      if (key == '$compose') return (ctx.comp = value)
+      if (key == '$compose') return (ctx.cmp = value)
       // everything else is a css var
       key = '--' + key.slice(1)
     }
     // helper handling
-    let helper = helpers[key]
+    const helper = runHelper(key, value)
     if (helper) {
-      if (typeof helper == 'function') helper = helper(...(value || '').split(' '))
-      const parsed = typeof helper == 'string' ? parseRules(helper) : helper
-      ctx.style += parsed.style
-      ctx.nest = ctx.nest.concat(parsed.nest)
+      const parsed = parseRules(helper)
+      ctx.rul += parsed.rul
+      ctx.sub = ctx.sub.concat(parsed.sub)
       return
     }
     if (!value) return
@@ -211,14 +215,14 @@ const makeZ = (conf = {}) => {
         .split(' ')
         .map(part => (isNaN(part) ? part : part + unit))
         .join(' ')
-    ctx.style += `  ${key}: ${value};\n`
+    ctx.rul += `  ${key}: ${value};\n`
   }
 
   const PROP = 1
   const VALUE = 2
   const { OPEN = '{', CLOSE = '}', BREAK = ';' } = parser
   const parseRules = memo(str => {
-    const ctx = [{ style: '', nest: [] }]
+    const ctx = [{ rul: '', sub: [] }]
     str = str && str.trim()
     if (!str) return ctx[0]
     str += BREAK // append semi to properly commit last rule
@@ -230,12 +234,18 @@ const makeZ = (conf = {}) => {
     for (let i = 0; i < str.length; i++) {
       char = str[i]
       if (char == '\n' || ((char == BREAK || char == CLOSE) && !quote)) {
+        // end of rule, process key/value
         assignRule(ctx[depth], curProp, buffer.trim() + quote)
-        if (char == CLOSE) ctx[--depth].nest.push(ctx.pop())
+        if (char == CLOSE) ctx[--depth].sub.push(ctx.pop())
         mode = PROP
         curProp = buffer = quote = ''
       } else if (char == OPEN && !quote) {
-        ctx[++depth] = { sel: (curProp + ' ' + buffer).trim(), style: '', nest: [] }
+        // block open, pre-process helper and create new ctx
+        ctx[++depth] = {
+          sel: runHelper(curProp, buffer.trim()) || (curProp + ' ' + buffer).trim(),
+          rul: '',
+          sub: []
+        }
         mode = PROP
         curProp = buffer = ''
       } else if (mode == PROP) {
@@ -246,6 +256,7 @@ const makeZ = (conf = {}) => {
           }
         } else buffer += char
       } else if (mode == VALUE) {
+        // ignore special parser tokens while inside of quotes
         if (quote) {
           if (char == quote && str[i - 1] != '\\') quote = ''
         } else if (char == "'" || char == '"') {
@@ -271,7 +282,7 @@ const makeZ = (conf = {}) => {
       const className =
         (parsed.name ? parsed.name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
       appendRule('.' + className, parsed)
-      return new Style(className + (parsed.comp ? ' ' + parsed.comp : ''), parsed.style)
+      return new Style(className + (parsed.cmp ? ' ' + parsed.cmp : ''), parsed.rul)
     })
   )
 

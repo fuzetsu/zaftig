@@ -274,7 +274,7 @@ z`animation ${grow} 1s ease`
 
 Register helpers functions to be called from style strings.
 
-A helper can be a `styleString` or a function that returns a `styleString`.
+A helper can be a `styleString|selector` or a function that returns a `styleString|selector`.
 
 If the helper is a function it will receive arguments, as seen in the `size` example below.
 
@@ -301,6 +301,44 @@ z`
   height: 50px;
   width: 100px;
   box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.5);
+}
+```
+
+Helpers can also be used in selectors, mainly useful for media queries.
+
+```js
+const breakpoints = { sm: '640px', md: '768px', lg: '1024px', xl: '1280px' }
+
+z.helper({
+  // can be function with arguments like normal helpers
+  '@med': x => `@media (min-width: ${breakpoints[x]})`,
+  // or simply a string
+  '@lg': '@media (min-width: 1024px)'
+})
+
+z`
+  c blue
+  @med md { c orange }
+  @lg { c red }
+`
+```
+
+```css
+/* generated css */
+.z2djkf2342-1 {
+  color: blue;
+}
+
+@media (min-width: 768px) {
+  .z2djkf2342-1 {
+    color: orange;
+  }
+}
+
+@media (min-width: 1024px) {
+  .z2djkf2342-1 {
+    color: red;
+  }
 }
 ```
 

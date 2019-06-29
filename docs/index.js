@@ -1,8 +1,11 @@
-import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone.mjs'
+import { h, render, Component } from 'https://unpkg.com/preact@10.0.0-beta.3/dist/preact.module.js'
+import microh from 'https://unpkg.com/microh?module'
 // import _z from '../src/index.js'
 // import _z from '../dist/zaftig.min.js'
 import _z from 'https://unpkg.com/zaftig@latest?module'
 // const _z = window.z
+
+const m = microh(h)
 
 const p = (...args) => (console.log(...args), args[0])
 
@@ -44,6 +47,17 @@ const params = new URLSearchParams(location.search)
 const isDebug = params.get('debug') !== 'false'
 z.setDebug(isDebug)
 
+const breakpoints = { sm: '640px', md: '768px', lg: '1024px', xl: '1280px' }
+
+z.helper({
+  flexCenter: 'd flex;ai center;jc center',
+  mar: (num, side = '') => `m${side} ${num * 0.25}rem`,
+  pad: (num, side = '') => `p${side} ${num * 0.25}rem`,
+  shadow: num => `box-shadow 0 0 ${num} 0 rgba(0,0,0,0.5)`,
+  '@med': (x, type) => `@media (${type || 'min'}-width: ${breakpoints[x]})`,
+  '@lg': '@media (min-width: 1024px)'
+})
+
 z.global`
   ff sans-serif
   bc #445566
@@ -58,14 +72,11 @@ z.global`
   pre { m 0 }
   .text-success { c #28a745 !important }
   .text-danger { c #dc3545 !important }
-`
 
-z.helper({
-  flexCenter: 'd flex;ai center;jc center',
-  mar: (num, side = '') => `m${side} ${num * 0.25}rem`,
-  pad: (num, side = '') => `p${side} ${num * 0.25}rem`,
-  shadow: num => `box-shadow 0 0 ${num} 0 rgba(0,0,0,0.5)`
-})
+  @lg {
+    h1 { c yellow }
+  }
+`
 
 window.z = z
 
@@ -79,6 +90,7 @@ const btn = z`
   us none;cursor pointer
   transition transform 100ms
   :active, &.active { transform scale(0.9) }
+  @med sm max { c blue !important }
   @media (max-width: 800px) {
     pad 5
     color orange
@@ -123,90 +135,69 @@ const spin = z.anim`
 class App extends Component {
   render(_, { count = 0, exp = '', color = '' }) {
     const style = z`${exp}`
-    return html`
-      <main
-        class=${z`
-          flexCenter
-          flex-flow column
-          transition background-color 500ms
-          pad 6 b
-          > * { mar 3 b }
-          > input { ta center }
-          bc ${color}
-        `}
-      >
-        <div
-          class=${z`
-            fs 2em;fw bold;mar 3
-            animation ${spin} 3s linear infinite
-          `}
-        >
-          Zaftig
-        </div>
-        <div>
-          <span class=${btn} onclick=${() => this.setState({ count: count + 1 })}>Increase</span>
-          <span class=${z`w 60;d inline-block;ta center;fs 2em`}>${count}</span>
-          <span class=${btn} onclick=${() => this.setState({ count: count - 1 })}>Decrease</span>
-        </div>
-        <div>
-          <span class=${squareBtn}>Square Button</span>
-        </div>
-        <input
-          placeholder="background color"
-          class=${tbox}
-          onchange=${({ target: t }) => this.setState({ color: t.value.trim() })}
-        />
-        <input
-          placeholder="z expression"
-          class=${tbox}
-          onchange=${({ target: t }) => this.setState({ exp: t.value.trim() })}
-        />
-        <div class=${z`pad 2;fs 1.5em;ff monospace;ta center`}>
-          <p>
-            ${style.valueOf()} ${' = '}
-            ${style.style ||
-              html`
-                <em>type something</em>
-              `}
-          </p>
-          <p>
-            zaftig runtime ${' '}
-            ${html`
-              <a href=${isDebug ? '?debug=false' : '?debug=true'}>${isDebug ? 'DEBUG' : 'PROD'}</a>
-            `}:
-            ${' ' + runTime.toFixed(3)}ms
-          </p>
-        </div>
-        <pre
-          class=${z`
-            ws pre-wrap
-            bc white;c #445566
-            pad 8
-            mar 4
-            br 4
-            shadow 10
-            columns ${isDebug ? 2 : 1}
-          `}
-        >
-        ${isDebug
-            ? z.getSheet().textContent.trim()
-            : Array.from(
-                z.getSheet().sheet.cssRules,
-                rule =>
-                  html`
-                    <p>${rule.cssText}</p>
-                  `
-              )}
-        </pre
-        >
-      </main>
-    `
+    return m(
+      'main' +
+        z`
+        flexCenter
+        flex-flow column
+        transition background-color 500ms
+        pad 6 b
+        > * { mar 3 b }
+        > input { ta center }
+        bc ${color}
+      `,
+      m(
+        'h1' +
+          z`
+          fs 2em;fw bold;mar 3
+          animation ${spin} 3s linear infinite
+        `,
+        'Zaftig'
+      ),
+      m(
+        'div',
+        m('' + btn, { onclick: () => this.setState({ count: count + 1 }) }, 'Increase'),
+        m('span' + z`w 60;d inline-block;ta center;fs 2em`, count),
+        m('' + btn, { onclick: () => this.setState({ count: count - 1 }) }, 'Decrease')
+      ),
+      m('div', m('span' + squareBtn, 'Square Button')),
+      m('input' + tbox, {
+        placeholder: 'background color',
+        onchange: ({ target: t }) => this.setState({ color: t.value.trim() })
+      }),
+      m('input' + tbox, {
+        placeholder: 'z expression',
+        onchange: ({ target: t }) => this.setState({ exp: t.value.trim() })
+      }),
+      m(
+        'div' + z`pad 2;fs 1.5em;ff monospace;ta center`,
+        m('p', style.valueOf(), ' ', ' = ', style.style || m('em', 'type something')),
+        m(
+          'p',
+          'zaftig runtime ',
+          m('a', { href: isDebug ? '?debug=false' : '?debug=true' }, isDebug ? 'DEBUG' : 'PROD'),
+          ': ',
+          runTime.toFixed(3),
+          'ms'
+        )
+      ),
+      m(
+        'pre' +
+          z`
+          ws pre-wrap
+          bc white;c #445566
+          pad 8
+          mar 4
+          br 4
+          shadow 10
+          columns ${isDebug ? 2 : 1}
+        `,
+        isDebug
+          ? z.getSheet().textContent.trim()
+          : Array.from(z.getSheet().sheet.cssRules, rule => m('p', rule.cssText))
+      )
+    )
   }
 }
 
-render(
-  html`
-    <${App} />
-  `,
-  document.body
-)
+render(m(App), document.body)
