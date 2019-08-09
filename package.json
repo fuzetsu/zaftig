@@ -26,6 +26,6 @@
   "homepage": "https://github.com/fuzetsu/zaftig#readme",
   "devDependencies": {
     "buble": "^0.19.8",
-    "terser": "^3.17.0"
+    "terser": "^4.1.3"
   }
 }
