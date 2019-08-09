@@ -91,12 +91,20 @@ const btn = z`
   transition transform 100ms
   :active, &.active { transform scale(0.9) }
   @med sm max { c blue !important }
-  @media (max-width: 800px) {
-    pad 5
-    color orange
-    @media screen {
-      @media print {
-        color green
+  @media screen {
+    @media (max-width: 800px) {
+      pad 5
+      color orange
+      h1 {
+        c orange
+        h2 {
+          c green
+          h3 {
+            @media (min-width: 300px) {
+              c purple
+            }
+          }
+        }
       }
     }
   }

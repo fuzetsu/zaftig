@@ -42,7 +42,8 @@ const popular = [
   'whiteSpace',
   'fontFamily',
   'userSelect',
-  'flexDirection'
+  'flexDirection',
+  'opacity'
 ]
 
 const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
@@ -148,8 +149,8 @@ const makeZ = (conf = {}) => {
 
   const appendSpecialRule = ctx => {
     if (ctx.media) {
-      const query = ctx.sel.slice(ctx.sel.indexOf(' ') + 1)
-      ctx.sub.forEach(c => c.media && (c.sel += ' and ' + query))
+      ctx.sub.forEach(c => c.media && (c.sel = ctx.sel + ' and ' + c.sel))
+      ctx.sel = '@media ' + ctx.sel
     }
     if (ctx.rul) addToSheet(ctx.sel, ctx.rul.replace(/^/gm, '  ') + '\n')
     if (ctx.sub) ctx.sub.forEach(appendSpecialRule)
@@ -157,6 +158,7 @@ const makeZ = (conf = {}) => {
 
   const appendSpecial = (sel, rules, psel = '', pctx = null) => {
     const media = sel.indexOf('@media') == 0
+    if (media) sel = sel.slice(sel.indexOf(' ') + 1)
     const ctx = {
       sel,
       media,
