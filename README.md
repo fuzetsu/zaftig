@@ -89,7 +89,7 @@ Or download the script and use it locally.
 
 ## API
 
-Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.new`](#new)
+Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.new`](#new)
 
 <hr>
 
@@ -99,7 +99,7 @@ Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) 
 
 Generates a `className` for the given `styleString` and inserts it into a stylesheet in the head of the document.
 
-It returns a `Style` object `{ class, className, style }`.
+It returns a `Style` object `{ class, className }`.
 
 When `.toString()` is called on a `Style` object the `className` will be returned.
 
@@ -251,6 +251,24 @@ z.global`
 
 <hr>
 
+<a name="style"></a>
+
+### `` z.style`<styleString>` ``
+
+Parses given style string and returns string of css rules. Useful for styles that change frequently to prevent generating too many classNames.
+Resulting string can be assigned to the style attribute of a DOM element.
+
+```js
+z.style`color ${fgColor};background-color ${bgColor}`
+
+// returns
+;('color: #444; background-color: #fff;')
+```
+
+Nested selectors will be ignored, only simple styles will be returned.
+
+<hr>
+
 <a name="anim"></a>
 
 ### `` z.anim`<styleString>` ``
@@ -301,6 +319,29 @@ z`
   height: 50px;
   width: 100px;
   box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.5);
+}
+```
+
+String based helpers will have any arguments passed automatically appended. This allows you to easily create your own css property shorthands.
+
+```js
+z.helper({
+  bo: 'border',
+  tra: 'transition'
+})
+
+z`
+  bo 4 solid red
+  tra 500ms
+`
+```
+
+```css
+/* generated css */
+
+.zx5cc6j6obc9-1 {
+  border: 4px solid red;
+  transition: 500ms;
 }
 ```
 
@@ -379,36 +420,8 @@ const newZ = z.new({
 
 Creating a new instance is useful when you want to you ensure you get a private/non global version of zaftig, or to render styles into a shadow DOM.
 
-#### Override parser options
-
-You can change how zaftig processes the style string syntax by passing the following options:
-
-```js
-const newZ = z.new({
-  parser: {
-    OPEN: '{', // block open
-    CLOSE: '}', // block close
-    BREAK: ';' // rule separator
-  }
-})
-```
-
-```js
-import zaftig from 'https://unpkg.com/zaftig?module'
-const z = zaftig.new({ parser: { OPEN: '[', CLOSE: ']' } })
-
-z.global`
-  html [ bc green ]
-`
-```
-
-[playground][parser-config-playground]
-
-**Warning:** Do not use a character that is valid in a CSS value, such as parentheses, `(` or `)`. Otherwise zaftig will be unable to properly parse css values.
-
 ## Credits
 
 Heavily inspired by [bss](https://github.com/porsager/bss) by [Rasmus Porsager](https://github.com/porsager).
 
-[parser-config-playground]: https://flems.io/#0=N4IgZglgNgpgziAXAbVAOwIYFsZJAOgAsAXLKEAGhAGMB7NYmBvEAXwvW10QICsEqdBk2J4IWAA60ATsQAEALwxhiEAOZyw02ljkByEsQlxEAelMBXNBIDWa-HSymlK9QH4stACYXYegDpoQnDyCnIAvIrKqvZoMADuABTAchIY0nAw0ohyKQDyAAoAogByOXrIehRyAMIAMnkAykXlALp6cqydAJSBgQr4alC0AEYYUAAGgXJyJGRyyHIj1HJq0jBMcq2BE5QgmbDUqvQIPACsiACMbBwgmDh4DnACNPSMzDxsraxAA
 [example-playground]: https://flems.io/#0=N4IgtglgJlA2CmIBcBWADAOgEwEYA0IAZhAgM7IDaoAdgIZiJIgYAWALmLCAQMYD21NvEHIQAHigQAbgAJoAXgA6IWgAdVygHyLqMmTrEB6SVM3cQpeAh5sIA8kzRIcWEAF88Neo2YArcrwCQiJMhoYyAO58AE4A1qQyvgCupGwytAkRVrCREGwsMgBK8LQ26dRQMnz58NEysBAARtG00RDwpIaELQxRcaQ6EGCqMWlgMt184wDk7GyqpEhhSdSqsQDmGPxghpD5bbAAAlgYmGgAtNE8GAAsAPxgfFBJCNODw6MyAF4T0VMyszY80Wy1WGy2U0MX1ohFs6weTxe8De1B0Xww61gfEatFgAAMdHoACSNNjUc78LF1ADENzpNxghImhBkpFo1FI50sbUITMICRwNyZ4xwaB0BNR1H4HLSpN0Sl0AMaSSBAmmMgA1EyvhK9HpGjEoLUZNQBPAmXpVDJMAB2FDReBgC31CDUeDnFjwCDrdgyHDYB1OxV6SkxGQkskUvhU50G6JGuqYFCs6PQcNyqMx4MyRo8SIsPLm7P8v0ANmdPCS0VIYZGrqE0WdbBaHLydl0zfZpEIMRFaDQYAG2b4KoabpNZudSFKtik8BkwBknY5Pei41IPFx8AAFJgAJwAShkbmdADIMKo2mBWgBPBc5vMR8mh6IAbhkeYiBaEx7PGD+KxGpUi7NDINy-oqEo6NKqQyAAguoMjyDI25HvI2iKmA27TNerrqhq3x4kSwBym497jMmbh4ngMgUM6WFyjR0wAHK9ri0wHng9HbnKmoAheV63v+I4VPAUDTExAAKgnRDeHFcdmDFknxOpEtsIyWDIAGiVA75PpmYbUvA8AoKZKDUQCADqrTUK66zydxvEEapGYvjI6wOsIFnTAAykkPA8B0pAOYpPHKc5RHqXwmmXkMt5aSJQF6a50Zhh5xnUN5fkBUFfHSXFskcUyAC6B46DoYD-sICbblAfCVgwggYAaUA3jRCGqKhZXUOYljWLY9iiCgSBYGg7ieCAdAMKIWykAEIDSsEbCiO4xVuEAA

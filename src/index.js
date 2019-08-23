@@ -43,7 +43,8 @@ const popular = [
   'fontFamily',
   'userSelect',
   'flexDirection',
-  'opacity'
+  'opacity',
+  'flex'
 ]
 
 const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
@@ -64,11 +65,19 @@ for (const prop of Object.keys(findStyle(document.documentElement.style)).concat
 }
 
 const testDiv = document.createElement('div')
-const needsPx = memo(prop =>
-  ['0', '0 0'].some(val => {
-    testDiv.style.cssText = `${prop}: ${val};`
-    return testDiv.style.cssText.slice(-3) == 'px;'
-  })
+const needsPx = memo(
+  prop =>
+    ['0', '0 0'].some(val => {
+      testDiv.style.cssText = `${prop}: ${val};`
+      return testDiv.style.cssText.slice(-3) == 'px;'
+    }),
+  {
+    border: true,
+    'border-left': true,
+    'border-right': true,
+    'border-top': true,
+    'border-bottom': true
+  }
 )
 
 const selSep = /\s*,\s*/
@@ -92,10 +101,9 @@ const processSelector = (sel, psel) =>
     .join(',\n')
 
 class Style {
-  constructor(className, style) {
+  constructor(className) {
     this.class = className
     this.className = className
-    this.style = style
   }
   toString() {
     return this.class
@@ -107,25 +115,18 @@ class Style {
 
 const wrap = (sel, body) => (sel && body ? `\n${sel} {\n${body}}\n` : '')
 
-const handleError = fn => x => {
+const handleTemplate = fn => (parts, ...args) => {
   try {
-    return fn(x)
+    return typeof parts === 'string' ? fn(parts) : Array.isArray(parts) ? fn(zip(parts, args)) : ''
   } catch (e) {
-    console.error('zaftig: error `', x, '`\n', e)
+    console.error('zaftig: error `', parts, '`', args, '\n', e)
     return ''
   }
-}
-
-const handleTemplate = (parts, args, fn) => {
-  if (typeof parts === 'string') return fn(parts)
-  if (Array.isArray(parts)) return fn(zip(parts, args))
-  return ''
 }
 
 const makeZ = (conf = {}) => {
   const {
     helpers = {},
-    parser = {},
     unit = 'px',
     id = 'z' +
       Math.random()
@@ -180,7 +181,9 @@ const makeZ = (conf = {}) => {
 
   const runHelper = (key, value) => {
     const helper = helpers[key]
-    return typeof helper === 'function' ? helper(...(value || '').split(' ')) : helper
+    return typeof helper === 'function'
+      ? helper(...(value || '').split(' '))
+      : helper && helper + ' ' + value
   }
 
   const assignRule = (ctx, key, value) => {
@@ -223,12 +226,11 @@ const makeZ = (conf = {}) => {
 
   const PROP = 1
   const VALUE = 2
-  const { OPEN = '{', CLOSE = '}', BREAK = ';' } = parser
   const parseRules = memo(str => {
     const ctx = [{ rul: '', sub: [] }]
     str = str && str.trim()
     if (!str) return ctx[0]
-    str += BREAK // append semi to properly commit last rule
+    str += ';' // append semi to properly commit last rule
     let mode = PROP
     let buffer = ''
     let depth = 0
@@ -236,13 +238,13 @@ const makeZ = (conf = {}) => {
     let char, curProp
     for (let i = 0; i < str.length; i++) {
       char = str[i]
-      if (char == '\n' || ((char == BREAK || char == CLOSE) && !quote)) {
+      if (char == '\n' || ((char == ';' || char == '}') && !quote)) {
         // end of rule, process key/value
         assignRule(ctx[depth], curProp, buffer.trim() + quote)
-        if (char == CLOSE) ctx[--depth].sub.push(ctx.pop())
+        if (char == '}') ctx[--depth].sub.push(ctx.pop())
         mode = PROP
         curProp = buffer = quote = ''
-      } else if (char == OPEN && !quote) {
+      } else if (char == '{' && !quote) {
         // block open, pre-process helper and create new ctx
         ctx[++depth] = {
           sel: runHelper(curProp, buffer.trim()) || (curProp + ' ' + buffer).trim(),
@@ -271,28 +273,24 @@ const makeZ = (conf = {}) => {
     return ctx[0]
   })
 
-  const createKeyframes = handleError(
-    memo(rules => {
-      const name = 'anim-' + id + '-' + (idCount += 1)
-      appendRule('@keyframes ' + name, parseRules(rules))
-      return name
-    })
-  )
+  const createKeyframes = memo(rules => {
+    const name = 'anim-' + id + '-' + (idCount += 1)
+    appendRule('@keyframes ' + name, parseRules(rules))
+    return name
+  })
 
-  const createStyle = handleError(
-    memo(rules => {
-      const parsed = parseRules(rules)
-      const className =
-        (parsed.name ? parsed.name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
-      appendRule('.' + className, parsed)
-      return new Style(className + (parsed.cmp ? ' ' + parsed.cmp : ''), parsed.rul)
-    })
-  )
+  const createStyle = memo(rules => {
+    const parsed = parseRules(rules)
+    const className =
+      (parsed.name ? parsed.name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
+    appendRule('.' + className, parsed)
+    return new Style(className + (parsed.cmp ? ' ' + parsed.cmp : ''))
+  })
 
-  const z = (parts, ...args) => handleTemplate(parts, args, createStyle)
-  z.global = (parts, ...args) =>
-    handleTemplate(parts, args, handleError(rules => appendRule(':root', parseRules(rules))))
-  z.anim = (parts, ...args) => handleTemplate(parts, args, createKeyframes)
+  const z = handleTemplate(createStyle)
+  z.global = handleTemplate(rules => appendRule(':root', parseRules(rules)))
+  z.anim = handleTemplate(createKeyframes)
+  z.style = handleTemplate(rules => parseRules(rules).rul)
   z.getSheet = () => style
   z.helper = spec => Object.assign(helpers, spec)
   z.setDebug = flag => (debug = flag)

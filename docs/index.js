@@ -1,8 +1,8 @@
-import { h, render, Component } from 'https://unpkg.com/preact@10.0.0-beta.3/dist/preact.module.js'
+import { h, render, Component } from 'https://unpkg.com/preact@10.0.0-rc.1/dist/preact.module.js'
 import microh from 'https://unpkg.com/microh?module'
-// import _z from '../src/index.js'
+import _z from '../src/index.js'
 // import _z from '../dist/zaftig.min.js'
-import _z from 'https://unpkg.com/zaftig@latest?module'
+// import _z from 'https://unpkg.com/zaftig@latest?module'
 // const _z = window.z
 
 const m = microh(h)
@@ -33,13 +33,12 @@ const fakeZ = _z.new({
   id: 'sunboy',
   style,
   unit: 'rem',
-  helpers: { sun: 'c orange & fs 100' },
-  parser: { OPEN: '[', CLOSE: ']', BREAK: '&' }
+  helpers: { sun: 'c orange; fs 100' }
 })
 fakeZ`sun`
 fakeZ`
-  margin 10 & h 10
-  h1, h2 [ m 10 ]
+  margin 10; h 10
+  h1, h2 { m 10 }
 `
 p(style.sheet.cssRules)
 
@@ -55,7 +54,8 @@ z.helper({
   pad: (num, side = '') => `p${side} ${num * 0.25}rem`,
   shadow: num => `box-shadow 0 0 ${num} 0 rgba(0,0,0,0.5)`,
   '@med': (x, type) => `@media (${type || 'min'}-width: ${breakpoints[x]})`,
-  '@lg': '@media (min-width: 1024px)'
+  '@lg': '@media (min-width: 1024px)',
+  bo: 'border'
 })
 
 z.global`
@@ -75,6 +75,10 @@ z.global`
 
   @lg {
     h1 { c yellow }
+  }
+
+  .random {
+    bo 1 solid white
   }
 `
 
@@ -142,7 +146,6 @@ const spin = z.anim`
 
 class App extends Component {
   render(_, { count = 0, exp = '', color = '' }) {
-    const style = z`${exp}`
     return m(
       'main' +
         z`
@@ -152,8 +155,10 @@ class App extends Component {
         pad 6 b
         > * { mar 3 b }
         > input { ta center }
-        bc ${color}
       `,
+      {
+        style: z.style`bc ${color}`
+      },
       m(
         'h1' +
           z`
@@ -179,7 +184,7 @@ class App extends Component {
       }),
       m(
         'div' + z`pad 2;fs 1.5em;ff monospace;ta center`,
-        m('p', style.valueOf(), ' = ', style.style || m('em', 'type something')),
+        m('p', z.style(exp) || m('em', 'type something')),
         m(
           'p',
           'zaftig runtime ',
