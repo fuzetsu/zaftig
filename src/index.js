@@ -44,7 +44,7 @@ const popular = [
   'userSelect',
   'flexDirection',
   'opacity',
-  'flex'
+  'float'
 ]
 
 const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
