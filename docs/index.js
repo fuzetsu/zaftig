@@ -1,8 +1,8 @@
 import { h, render, Component } from 'https://unpkg.com/preact@10.0.0-rc.1/dist/preact.module.js'
 import microh from 'https://unpkg.com/microh?module'
-import _z from '../src/index.js'
+// import _z from '../src/index.js'
 // import _z from '../dist/zaftig.min.js'
-// import _z from 'https://unpkg.com/zaftig@latest?module'
+import _z from 'https://unpkg.com/zaftig@latest?module'
 // const _z = window.z
 
 const m = microh(h)

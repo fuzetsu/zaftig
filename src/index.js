@@ -235,9 +235,9 @@ const makeZ = (conf = {}) => {
     let buffer = ''
     let depth = 0
     let quote = ''
-    let char, curProp
+    let curProp = ''
     for (let i = 0; i < str.length; i++) {
-      char = str[i]
+      const char = str[i]
       if (char == '\n' || ((char == ';' || char == '}') && !quote)) {
         // end of rule, process key/value
         assignRule(ctx[depth], curProp, buffer.trim() + quote)
