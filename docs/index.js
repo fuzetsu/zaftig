@@ -54,7 +54,7 @@ z.helper({
   pad: (num, side = '') => `p${side} ${num * 0.25}rem`,
   shadow: num => `box-shadow 0 0 ${num} 0 rgba(0,0,0,0.5)`,
   '@med': (x, type) => `@media (${type || 'min'}-width: ${breakpoints[x]})`,
-  '@lg': '@media (min-width: 1024px)',
+  '@xl': '@media (min-width: 1300px)',
   bo: 'border'
 })
 
@@ -73,7 +73,8 @@ z.global`
   .text-success { c #28a745 !important }
   .text-danger { c #dc3545 !important }
 
-  @lg {
+  @xl {
+    fs 12
     h1 { c yellow }
   }
 

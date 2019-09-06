@@ -23,46 +23,51 @@ const vendorPrefix =
 
 // list of popular properties that should have a higher shorthand priority
 const popular = [
-  'display',
   'backgroundColor',
-  'color',
-  'margin',
-  'padding',
-  'height',
-  'width',
-  'fontSize',
-  'top',
-  'right',
-  'bottom',
+  'borderBottom',
   'borderRadius',
+  'bottom',
+  'boxShadow',
+  'color',
+  'display',
+  'flexDirection',
+  'float',
+  'fontFamily',
+  'fontSize',
+  'height',
+  'margin',
+  'marginTop',
+  'opacity',
+  'padding',
+  'paddingBottom',
+  'right',
   'textAlign',
   'textDecoration',
-  'marginTop',
-  'boxShadow',
+  'top',
   'whiteSpace',
-  'fontFamily',
-  'userSelect',
-  'flexDirection',
-  'opacity',
-  'float'
+  'width'
 ]
 
 const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
 
+// collect valid props and their shorthands
+const props = Object.keys(findStyle(document.documentElement.style)).filter(
+  prop => prop.indexOf('-') < 0 && prop != 'length'
+)
 const validProps = {}
 const short = {}
-for (const prop of Object.keys(findStyle(document.documentElement.style)).concat(popular)) {
-  if (prop.indexOf('-') < 0 && prop != 'length') {
-    let dashed = dash(prop)
-    let init = initials(prop)
-    if (prop.toLowerCase().indexOf(vendorPrefix) == 0) {
-      init = init.slice(1)
-      dashed = dashed[0] == '-' ? dashed : '-' + dashed
-      if (!short[init]) short[init] = dashed
-    } else short[init] = dashed
-    validProps[dashed] = true
-  }
-}
+
+// concat valid popular props to give higher shorthand priority
+props.concat(popular.filter(pop => props.indexOf(pop) >= 0)).forEach(prop => {
+  let dashed = dash(prop)
+  let init = initials(prop)
+  if (prop.toLowerCase().indexOf(vendorPrefix) == 0) {
+    init = init.slice(1)
+    dashed = dashed[0] == '-' ? dashed : '-' + dashed
+    if (!short[init]) short[init] = dashed
+  } else short[init] = dashed
+  validProps[dashed] = true
+})
 
 const testDiv = document.createElement('div')
 const needsPx = memo(
@@ -93,7 +98,7 @@ const processSelector = (sel, psel) =>
             .map(part =>
               part.indexOf('&') >= 0
                 ? part.replace(/&/g, ppart)
-                : ppart + (part[0] == ':' ? '' : ' ') + part
+                : ppart + (part[0] == ':' || part[0] == '[' ? '' : ' ') + part
             )
         ),
       []
@@ -166,13 +171,14 @@ const makeZ = (conf = {}) => {
       sub: [],
       rul: media ? wrap(psel, rules.rul) : ''
     }
-    rules.sub.forEach(n => appendRule(n.sel, n, psel, ctx))
+    rules.sub.forEach(n => appendRule(n.sel, n, psel == ':root' ? '' : sel, ctx))
     if (pctx) pctx.sub.push(ctx)
     else appendSpecialRule(ctx)
   }
 
   const appendRule = (sel, rules, psel = '', pctx = null) => {
-    if (/^@(media|keyframes)/.test(sel)) return appendSpecial(sel, rules, psel, pctx)
+    if (/^@(media|keyframes)/.test(sel))
+      return appendSpecial(sel, rules, psel == '' ? ':root' : psel, pctx)
     if (psel && (!pctx || pctx.media)) sel = processSelector(sel, psel)
     if (pctx) pctx.rul += wrap(sel, rules.rul)
     else addToSheet(sel, rules.rul)
