@@ -87,6 +87,11 @@ Or download the script and use it locally.
 
 [You can see all the options here.](https://unpkg.com/zaftig@latest/dist/)
 
+## Plugins and Tools
+
+- [Highlight CSS Lean Strings](https://marketplace.visualstudio.com/items?itemName=fuzetsu.highlight-css-lean-strings&ssr=false#overview): a vscode plugin that will add syntax highlighting for Zaftig style strings in your JS code
+- [Zaftig Tailwind](https://github.com/fuzetsu/zaftig-tailwind): a collection of helpers based on [Tailwind css](https://tailwindcss.com)
+
 ## API
 
 Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.new`](#new)

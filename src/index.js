@@ -164,14 +164,13 @@ const makeZ = (conf = {}) => {
 
   const appendSpecial = (sel, rules, psel = '', pctx = null) => {
     const media = sel.indexOf('@media') == 0
-    if (media) sel = sel.slice(sel.indexOf(' ') + 1)
     const ctx = {
-      sel,
+      sel: media ? sel.slice(sel.indexOf(' ') + 1) : sel,
       media,
       sub: [],
       rul: media ? wrap(psel, rules.rul) : ''
     }
-    rules.sub.forEach(n => appendRule(n.sel, n, psel == ':root' ? '' : sel, ctx))
+    rules.sub.forEach(n => appendRule(n.sel, n, psel == ':root' ? '' : psel, ctx))
     if (pctx) pctx.sub.push(ctx)
     else appendSpecialRule(ctx)
   }

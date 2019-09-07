@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.3
+
+_2019-09-07_
+
+Fixed regression where nested selectors in media queries would be applied incorrectly.
+
+Added section about tools to readme.
+
 ## 0.7.2
 
 _2019-09-05_

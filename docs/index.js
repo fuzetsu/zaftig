@@ -24,7 +24,7 @@ const z = Object.assign((...args) => {
 const style = {
   sheet: {
     cssRules: [],
-    insertRule: function(rule, idx) {
+    insertRule(rule, idx) {
       this.cssRules[idx] = rule
     }
   }
