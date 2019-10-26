@@ -13,8 +13,8 @@ z`display flex` // .zjsdkk43-1
 
 - 💸 Quick and lightweight
 - 🙇 User defined helper functions `z.helper({})`
-- 💯 Self referencing nested styles `&`
-- 🅰️ Initial based css property shorthands _e.g. bc == background-color or d == display_
+- 💯 Simplified CSS syntax with nested selector support `` z`:hover { c green }` ``
+- 🅰️ Initial based CSS property shorthands _e.g. bc == background-color or d == display_
 - ⚙️ Basic automatic vendor prefixing for: Chrome, Safari, Firefox, Edge, Opera (webkit)
 
 Example:
