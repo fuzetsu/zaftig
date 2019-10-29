@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.1
+
+_2019-10-28_
+
+Made a couple tweaks to shave some unnecessary bytes.
+
 ## 0.8.0
 
 _2019-10-28_

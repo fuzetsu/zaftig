@@ -165,7 +165,7 @@ const makeZ = (conf = {}) => {
   let { style, debug = false } = conf
   let idCount = 0
 
-  const addToSheet = (sel, body, prefix = false) => {
+  const addToSheet = (sel, body, prefix) => {
     const rule = wrap(prefix ? prefixSelector(sel) : sel, body)
     if (!rule) return
     if (!style) {
@@ -196,7 +196,7 @@ const makeZ = (conf = {}) => {
     if (ctx.sub) ctx.sub.forEach(appendSpecialRule)
   }
 
-  const appendSpecial = (sel, rules, psel = '', pctx = null) => {
+  const appendSpecial = (sel, rules, psel = '', pctx) => {
     const media = sel.indexOf('@media') == 0
     const ctx = {
       sel: media ? sel.slice(sel.indexOf(' ') + 1) : sel,
@@ -209,7 +209,7 @@ const makeZ = (conf = {}) => {
     else appendSpecialRule(ctx)
   }
 
-  const appendRule = (sel, rules, psel = '', pctx = null) => {
+  const appendRule = (sel, rules, psel = '', pctx) => {
     if (/^@(media|keyframes)/.test(sel))
       return appendSpecial(sel, rules, psel == '' ? ':root' : psel, pctx)
     if (psel && (!pctx || pctx.media)) sel = processSelector(sel, psel)
