@@ -129,6 +129,30 @@ const handleTemplate = fn => (parts, ...args) => {
   }
 }
 
+const createSheet = () => document.head.appendChild(document.createElement('style'))
+
+const _testSheet = createSheet()
+const isValidSel = sel => {
+  try {
+    _testSheet.sheet.insertRule(sel + '{}', 0)
+    _testSheet.sheet.deleteRule(0)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+const prefixSelector = sel =>
+  sel.replace(/(::?)([a-z-]+)(\()?/gi, (full, pre, name, paran) => {
+    // handle special browser cases
+    if (name == 'placeholder' && vendorPrefix != 'moz') name = 'input-' + name
+    else if (name == 'matches') name = 'any'
+    // skip valid or already prefixed selectors
+    return name[0] == '-' || isValidSel(paran ? full + '.f)' : full)
+      ? full
+      : pre + '-' + vendorPrefix + '-' + name + (paran || '')
+  })
+
 const makeZ = (conf = {}) => {
   const {
     helpers = {},
@@ -141,15 +165,25 @@ const makeZ = (conf = {}) => {
   let { style, debug = false } = conf
   let idCount = 0
 
-  const addToSheet = (sel, body) => {
-    const rule = wrap(sel, body)
-    if (rule) {
-      if (!style) {
-        style = document.head.appendChild(document.createElement('style'))
-        style.id = id
+  const addToSheet = (sel, body, prefix = false) => {
+    const rule = wrap(prefix ? prefixSelector(sel) : sel, body)
+    if (!rule) return
+    if (!style) {
+      style = createSheet()
+      style.id = id
+    }
+    try {
+      // run even in debug mode so that we can detect invalid syntax
+      style.sheet.insertRule(rule, style.sheet.cssRules.length)
+      if (debug) {
+        // rule inserted above is overwritten when textContent is
+        style.textContent += rule
+        if (prefix) console.warn('zaftig: prefixed', sel, '|', prefixSelector(sel))
       }
-      if (debug) style.textContent += rule
-      else style.sheet.insertRule(rule, style.sheet.cssRules.length)
+    } catch (e) {
+      // if insert fails, attempt again if selector can be prefixed
+      if (!prefix && rule.indexOf(':') >= 0) addToSheet(sel, body, true)
+      else console.error('zaftig: insert failed', rule, e)
     }
   }
 

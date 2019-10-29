@@ -81,6 +81,8 @@ z.global`
   .random {
     bo 1 solid white
   }
+
+  ::not-a-real-thing { c red }
 `
 
 window.z = z

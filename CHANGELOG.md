@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0
+
+_2019-10-28_
+
+Error handling has been improved quite a bit (#7). If there is a syntax error in the CSS selector of rule being inserted (only thing that seems to actually throw an error), only that particular rule will fail to insert. Zaftig will log that to the console with error information, but the rest of the style will be used.
+
+Automatic prefixing of CSS selectors (#8). A slightly naive implementation, but it seems to work for the important cases. If a rule fails to insert, and there are any pseudo-elements or pseudo-selectors in the selector, Zaftig will re-attempt to insert by checking each portion of the selector for errors that can be fixed by adding the vendor prefix.
+
+Not a functionality change, but since last version I have added some basic automated tests to prevent obvious bugs from slipping through.
+
 ## 0.7.3
 
 _2019-09-07_

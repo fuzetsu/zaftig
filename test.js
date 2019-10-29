@@ -159,4 +159,10 @@ h 200
       `@keyframes${fadeIn}{0%{opacity:0;}100%{opacity:1;}}@keyframes${growIn}{from{transform:scale(0);}to{transform:scale(1);}}`
     )
   })
+  o('expected number of cssRules are inserted in debug mode', () => {
+    const z = zaf.new({ debug: true })
+    z.global`h1 { color red }; h2 { color green }`
+    o(z.getSheet().sheet.cssRules.length).equals(2)
+  })
+  // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })
