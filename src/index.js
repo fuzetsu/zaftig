@@ -37,6 +37,7 @@ const popular = [
   'height',
   'margin',
   'marginTop',
+  'marginBottom',
   'opacity',
   'padding',
   'paddingBottom',

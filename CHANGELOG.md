@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.2
+
+_2019-11-08_
+
+Added `margin-bottom` to the popular property list. Firefox was resolving `mb` to `margin-block`.
+
 ## 0.8.1
 
 _2019-10-28_

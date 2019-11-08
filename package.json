@@ -1,6 +1,6 @@
 {
   "name": "zaftig",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "css for your js",
   "source": "src/index.js",
   "main": "dist/zaftig.es5.min.js",
@@ -26,7 +26,7 @@
   "homepage": "https://github.com/fuzetsu/zaftig#readme",
   "devDependencies": {
     "buble": "^0.19.8",
-    "jsdom": "^15.2.0",
+    "jsdom": "^15.2.1",
     "ospec": "^4.0.1",
     "terser": "^4.3.9"
   }
