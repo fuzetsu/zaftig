@@ -164,5 +164,6 @@ h 200
     z.global`h1 { color red }; h2 { color green }`
     o(z.getSheet().sheet.cssRules.length).equals(2)
   })
+  o('flex does not generate px', () => o(zaf.style`flex 1`.trim()).equals('flex: 1;'))
   // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })
