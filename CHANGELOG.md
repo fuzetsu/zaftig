@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.3
+
+_2019-11-12_
+
+Added auto-px exception for `flex`. In IE `px` was being added even though numbers without units numbers should be accepted.
+
 ## 0.8.2
 
 _2019-11-08_

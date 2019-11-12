@@ -78,6 +78,7 @@ const needsPx = memo(
       return testDiv.style.cssText.slice(-3) == 'px;'
     }),
   {
+    flex: false,
     border: true,
     'border-left': true,
     'border-right': true,
