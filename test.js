@@ -26,6 +26,7 @@ const fullSheet = (str, conf) => {
   const [input, output] = str.split('===')
   const style = z(input)
   o('' + style).equals('.test-1')
+  o(String(style)).equals('test-1')
   o(style.class).equals('test-1')
   o(style.className).equals('test-1')
   o(z.getSheet().textContent.trim()).equals(output.trim())
@@ -124,7 +125,7 @@ h 200
       '.test-1{color:red;top:100px;padding:50px;margin:0px;bottom:300px;}'
     )
   })
-  o('doesnt crash for invalid input', () => zaf.new()`}}}}}`)
+  o('does not crash for invalid input, returns empty string', () => o(zaf.new()`}}}}}`).equals(''))
   o('same style string returns same classname', () => {
     const z = zaf.new()
     o(z`m 10`.class).equals(z`m 10`.class)
@@ -170,7 +171,8 @@ h 200
       'no-arg': 'padding 10',
       basic: 'margin',
       'basic-fn': (x = 1, y = 2, z = 3) => `content '${x} ${y} ${z}'`,
-      multi: 'height 50;width 50'
+      multi: 'height 50;width 50',
+      nested: 'body { color orange }'
     }
     fullSheet(
       css`
@@ -180,6 +182,7 @@ h3 { basic-fn; no-arg; multi }
 h4 { basic-fn hello }
 h5 { basic-fn hello world }
 h6 { basic-fn hello world foo }
+.test { nested }
 ===
 .test-1 h1 {
   margin: 5px;
@@ -207,9 +210,24 @@ h6 { basic-fn hello world foo }
 .test-1 h6 {
   content: 'hello world foo';
 }
+
+.test-1 .test body {
+  color: orange;
+}
     `,
       { helpers }
     )
+  })
+  o('css vars work', () => {
+    singleRule(
+      '--hello 100px; $bye 200px; margin var(--hello); padding $bye',
+      '--hello: 100px; --bye: 200px; margin: var(--hello); padding: var(--bye);'
+    )
+  })
+  o('$name and $compose work', () => {
+    const z = zaf.new({ id: 'test' })
+    o(z`$name bob;$compose hello world`.class).equals('bob-test-1 hello world')
+    o(z.getSheet()).equals(undefined)
   })
   // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })
