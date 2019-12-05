@@ -21,8 +21,8 @@ const singleRule = (input, output, z = zaf.new({ id: 'test' })) => {
   o(z.getSheet().sheet.cssRules[0].cssText).equals('.test-1 {' + output + '}')
 }
 
-const fullSheet = str => {
-  const z = zaf.new({ id: 'test', debug: true })
+const fullSheet = (str, conf) => {
+  const z = zaf.new({ ...conf, id: 'test', debug: true })
   const [input, output] = str.split('===')
   const style = z(input)
   o('' + style).equals('.test-1')
@@ -165,5 +165,51 @@ h 200
     o(z.getSheet().sheet.cssRules.length).equals(2)
   })
   o('flex does not generate px', () => o(zaf.style`flex 1`.trim()).equals('flex: 1;'))
+  o('helpers work', () => {
+    const helpers = {
+      'no-arg': 'padding 10',
+      basic: 'margin',
+      'basic-fn': (x = 1, y = 2, z = 3) => `content '${x} ${y} ${z}'`,
+      multi: 'height 50;width 50'
+    }
+    fullSheet(
+      css`
+h1 { basic 5 }
+h2 { basic 5 10 }
+h3 { basic-fn; no-arg; multi }
+h4 { basic-fn hello }
+h5 { basic-fn hello world }
+h6 { basic-fn hello world foo }
+===
+.test-1 h1 {
+  margin: 5px;
+}
+
+.test-1 h2 {
+  margin: 5px 10px;
+}
+
+.test-1 h3 {
+  content: '1 2 3';
+  padding: 10px;
+  height: 50px;
+  width: 50px;
+}
+
+.test-1 h4 {
+  content: 'hello 2 3';
+}
+
+.test-1 h5 {
+  content: 'hello world 3';
+}
+
+.test-1 h6 {
+  content: 'hello world foo';
+}
+    `,
+      { helpers }
+    )
+  })
   // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })

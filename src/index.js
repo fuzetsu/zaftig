@@ -223,7 +223,7 @@ const makeZ = (conf = {}) => {
   const runHelper = (key, value) => {
     const helper = helpers[key]
     return typeof helper === 'function'
-      ? helper(...(value || '').split(' '))
+      ? helper(...(value ? value.split(' ') : []))
       : helper && helper + ' ' + value
   }
 

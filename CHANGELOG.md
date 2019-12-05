@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.4
+
+_2019-12-05_
+
+Fixed bug with function helpers where empty string would be passed as first arg when no args were passed, causing default args not to work:
+
+```js
+z.helper({ test: (x = 5) => `margin ${x}` })
+
+z`test` // this would result in no style being applied, since x would be '' instead of defaulting to 5
+```
+
 ## 0.8.3
 
 _2019-11-12_
