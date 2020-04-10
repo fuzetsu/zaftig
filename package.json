@@ -25,9 +25,9 @@
   },
   "homepage": "https://github.com/fuzetsu/zaftig#readme",
   "devDependencies": {
-    "buble": "^0.19.8",
-    "jsdom": "^15.2.1",
-    "ospec": "^4.0.1",
-    "terser": "^4.4.2"
+    "buble": "^0.20",
+    "jsdom": "^16",
+    "ospec": "^4.1.1",
+    "terser": "^4.6.11"
   }
 }

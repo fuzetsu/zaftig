@@ -7,12 +7,7 @@ const memo = (fn, cache = {}) => x => (x in cache ? cache[x] : (cache[x] = fn(x)
 
 const dash = nodash => nodash.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
 
-const initials = str =>
-  str[0] +
-  str
-    .slice(1)
-    .replace(/[a-z]/g, '')
-    .toLowerCase()
+const initials = str => str[0] + str.slice(1).replace(/[a-z]/g, '').toLowerCase()
 
 const vendorPrefix =
   document.documentMode || /Edge\//.test(navigator.userAgent)
@@ -156,14 +151,7 @@ const prefixSelector = sel =>
   })
 
 const makeZ = (conf = {}) => {
-  const {
-    helpers = {},
-    unit = 'px',
-    id = 'z' +
-      Math.random()
-        .toString(36)
-        .slice(2)
-  } = conf
+  const { helpers = {}, unit = 'px', id = 'z' + Math.random().toString(36).slice(2) } = conf
   let { style, debug = false } = conf
   let idCount = 0
 
