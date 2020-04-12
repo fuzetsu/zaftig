@@ -189,7 +189,7 @@ class App extends Component {
         'div' + z`pad 2;fs 1.5em;ff monospace;ta center`,
         m('p', z.style(exp) || m('em', 'type something')),
         m(
-          'p',
+          'p' + z`:hover { c orange }`,
           'zaftig runtime ',
           m('a', { href: isDebug ? '?debug=false' : '?debug=true' }, isDebug ? 'DEBUG' : 'PROD'),
           ': ',
