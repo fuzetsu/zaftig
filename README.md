@@ -94,7 +94,7 @@ Or download the script and use it locally.
 
 ## API
 
-Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.new`](#new)
+Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.getSheet`](#get-sheet) ~~ [`z.new`](#new)
 
 <hr>
 
@@ -386,6 +386,23 @@ z`
     color: red;
   }
 }
+```
+
+<hr>
+
+<a name="get-sheet"></a>
+
+### `z.getSheet()`
+
+Returns the DOM node representing the stylesheet.
+
+You can read the stylesheet from it in a couple ways depending on the whether you're in debug mode or not:
+
+```js
+// in debug mode you can look for the stylesheet in document.head in DOM or like this:
+z.getSheet().textContent
+// in prod mode you can use the following code to get the stylesheet:
+[...z.getSheet().sheet.cssRules].map(x => x.cssText).join('\n')
 ```
 
 <hr>

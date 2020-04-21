@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.9.0
+
+_2020-04-21_
+
+Major enhancement to error reporting in debug mode 🎉
+
+When debug mode is enabled all css rules will be tested for validity and an error will be logged to the console if an invalid rule is found.
+
+Since `console.error` is used a stack is provided which makes it easy to find the offending style.
+
+```js
+import z from 'zaftig'
+z.setDebug(true)
+
+z`fake-rule boo;color 100`
+
+/*
+In the console:
+zaftig: invalid css fake-rule boo;
+zaftig: invalid css color: 100;
+*/
+```
+
+This version removes the logging when zaftig prefixes a property, you can still easily check the generated stylesheet to see whether a selector was prefixed or not.
+
+```js
+// in debug mode you can look for the stylesheet in document.head in DOM or like this:
+z.getSheet().textContent
+// in prod mode you can use the following code to get the stylesheet:
+[...z.getSheet().sheet.cssRules].map(x => x.cssText).join('\n')
+```
+
 ## 0.8.4
 
 _2019-12-05_

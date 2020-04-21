@@ -1,4 +1,8 @@
+const { isArray } = Array
+const { hasOwnProperty, getPrototypeOf } = Object
+
 // const p = (...args) => (console.log(...args), args[0])
+const err = (...args) => console.error('zaftig:', ...args)
 
 const zip = (parts, args) =>
   parts.reduce((acc, c, i) => acc + c + (args[i] == null ? '' : args[i]), '')
@@ -44,7 +48,7 @@ const popular = [
   'width'
 ]
 
-const findStyle = obj => (obj.hasOwnProperty('width') ? obj : findStyle(Object.getPrototypeOf(obj)))
+const findStyle = obj => (hasOwnProperty.call(obj, 'width') ? obj : findStyle(getPrototypeOf(obj)))
 
 // collect valid props and their shorthands
 const props = Object.keys(findStyle(document.documentElement.style)).filter(
@@ -119,9 +123,9 @@ const wrap = (sel, body) => (sel && body ? `\n${sel} {\n${body}}\n` : '')
 
 const handleTemplate = fn => (parts, ...args) => {
   try {
-    return typeof parts === 'string' ? fn(parts) : Array.isArray(parts) ? fn(zip(parts, args)) : ''
+    return typeof parts === 'string' ? fn(parts) : isArray(parts) ? fn(zip(parts, args)) : ''
   } catch (e) {
-    console.error('zaftig: error `', parts, '`', args, '\n', e)
+    err('error `', parts, '`', args, '\n', e)
     return ''
   }
 }
@@ -129,11 +133,12 @@ const handleTemplate = fn => (parts, ...args) => {
 const createSheet = () => document.head.appendChild(document.createElement('style'))
 
 const _testSheet = createSheet()
-const isValidSel = sel => {
+const isValidCss = (sel, body = '') => {
   try {
-    _testSheet.sheet.insertRule(sel + '{}', 0)
+    _testSheet.sheet.insertRule(`${sel}{${body}}`, 0)
+    const out = body && _testSheet.sheet.cssRules[0].cssText.replace(/\s/g, '')
     _testSheet.sheet.deleteRule(0)
-    return true
+    return !out || out.length > sel.length + 2
   } catch (e) {
     return false
   }
@@ -145,7 +150,7 @@ const prefixSelector = sel =>
     if (name == 'placeholder' && vendorPrefix != 'moz') name = 'input-' + name
     else if (name == 'matches') name = 'any'
     // skip valid or already prefixed selectors
-    return name[0] == '-' || isValidSel(paran ? full + '.f)' : full)
+    return name[0] == '-' || isValidCss(paran ? full + '.f)' : full)
       ? full
       : pre + '-' + vendorPrefix + '-' + name + (paran || '')
   })
@@ -165,15 +170,12 @@ const makeZ = (conf = {}) => {
     try {
       // run even in debug mode so that we can detect invalid syntax
       style.sheet.insertRule(rule, style.sheet.cssRules.length)
-      if (debug) {
-        // rule inserted above is overwritten when textContent is
-        style.textContent += rule
-        if (prefix) console.warn('zaftig: prefixed', sel, '|', prefixSelector(sel))
-      }
+      // rule inserted above is overwritten when textContent is
+      if (debug) style.textContent += rule
     } catch (e) {
       // if insert fails, attempt again if selector can be prefixed
-      if (!prefix && rule.indexOf(':') >= 0) addToSheet(sel, body, true)
-      else console.error('zaftig: insert failed', rule, e)
+      if (!prefix && sel.indexOf(':') >= 0) addToSheet(sel, body, true)
+      else err('insert failed', sel, body, e)
     }
   }
 
@@ -233,14 +235,13 @@ const makeZ = (conf = {}) => {
       ctx.sub = ctx.sub.concat(parsed.sub)
       return
     }
-    if (!value) return
+    if (!value) return debug && err('no value for', key)
     // shorthand handling
     key = short[key] || key
     // auto-prefix / invalid key warning
     if (!validProps[key]) {
       const prefixed = `-${vendorPrefix}-${key}`
       if (validProps[prefixed]) key = prefixed
-      else if (debug && key.indexOf('--') < 0) console.warn('zaftig: unknown key', key)
     }
     // replace $ var refs with css var refs
     if (value.indexOf('$') >= 0) value = value.replace(/\$([a-z0-9-]+)/gi, 'var(--$1)')
@@ -250,7 +251,9 @@ const makeZ = (conf = {}) => {
         .split(' ')
         .map(part => (isNaN(part) ? part : part + unit))
         .join(' ')
-    ctx.rul += `  ${key}: ${value};\n`
+    const rule = `  ${key}: ${value};\n`
+    if (debug && !isValidCss(id, rule)) err('invalid css', rule)
+    ctx.rul += rule
   }
 
   const PROP = 1

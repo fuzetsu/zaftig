@@ -80,6 +80,9 @@ z.global`
 
   .random {
     bo 1 solid white
+    bad-css boo
+    overflow: hidden
+    overflow:hidden
   }
 
   ::not-a-real-thing { c red }
