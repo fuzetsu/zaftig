@@ -21,6 +21,7 @@ const terserOut = Terser.minify(
   {
     module: true,
     ecma: 8,
+    mangle: { properties: { regex: /^_/ } },
     sourceMap: { filename: outName, url: outName + '.map' }
   }
 )
@@ -59,7 +60,11 @@ const bubleOut = buble.transform(moduleToBrowser(input), {
 })
 const bubleTerserOut = Terser.minify(
   { [es5SrcName]: bubleOut.code },
-  { ecma: 5, sourceMap: { filename: es5OutName, url: es5OutName + '.map' } }
+  {
+    ecma: 5,
+    mangle: { properties: { regex: /^_/ } },
+    sourceMap: { filename: es5OutName, url: es5OutName + '.map' }
+  }
 )
 
 const reportDiff = (path, newCode) => {

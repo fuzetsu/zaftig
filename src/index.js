@@ -180,34 +180,40 @@ const makeZ = (conf = {}) => {
   }
 
   const appendSpecialRule = ctx => {
-    if (ctx.media) {
-      ctx.sub.forEach(c => c.media && (c.sel = ctx.sel + ' and ' + c.sel))
-      ctx.sel = '@media ' + ctx.sel
+    if (ctx._media) {
+      ctx._nested.forEach(
+        nested => nested._media && (nested._selector = ctx._selector + ' and ' + nested._selector)
+      )
+      ctx._selector = '@media ' + ctx._selector
     }
-    if (ctx.rul) addToSheet(ctx.sel, ctx.rul.replace(/^/gm, '  ') + '\n')
-    if (ctx.sub) ctx.sub.forEach(appendSpecialRule)
+    if (ctx._rules) addToSheet(ctx._selector, ctx._rules.replace(/^/gm, '  ') + '\n')
+    if (ctx._nested) ctx._nested.forEach(appendSpecialRule)
   }
 
-  const appendSpecial = (sel, rules, psel = '', pctx) => {
+  const appendSpecial = (sel, ctx, psel = '', parent) => {
     const media = sel.indexOf('@media') == 0
-    const ctx = {
-      sel: media ? sel.slice(sel.indexOf(' ') + 1) : sel,
-      media,
-      sub: [],
-      rul: media ? wrap(psel, rules.rul) : ''
+    const special = {
+      _selector: media ? sel.slice(sel.indexOf(' ') + 1) : sel,
+      _media: media,
+      _nested: [],
+      _rules: media ? wrap(psel, ctx._rules) : ''
     }
-    rules.sub.forEach(n => appendRule(n.sel, n, psel == ':root' ? '' : psel, ctx))
-    if (pctx) pctx.sub.push(ctx)
-    else appendSpecialRule(ctx)
+    ctx._nested.forEach(nested =>
+      appendRule(nested._selector, nested, psel == ':root' ? '' : psel, special)
+    )
+    if (parent) parent._nested.push(special)
+    else appendSpecialRule(special)
   }
 
-  const appendRule = (sel, rules, psel = '', pctx) => {
+  const appendRule = (sel, ctx, psel = '', parent) => {
     if (/^@(media|keyframes)/.test(sel))
-      return appendSpecial(sel, rules, psel == '' ? ':root' : psel, pctx)
-    if (psel && (!pctx || pctx.media)) sel = processSelector(sel, psel)
-    if (pctx) pctx.rul += wrap(sel, rules.rul)
-    else addToSheet(sel, rules.rul)
-    rules.sub.forEach(n => appendRule(n.sel, n, sel == ':root' ? '' : sel, pctx))
+      return appendSpecial(sel, ctx, psel == '' ? ':root' : psel, parent)
+    if (psel && (!parent || parent._media)) sel = processSelector(sel, psel)
+    if (parent) parent._rules += wrap(sel, ctx._rules)
+    else addToSheet(sel, ctx._rules)
+    ctx._nested.forEach(nestedCtx =>
+      appendRule(nestedCtx._selector, nestedCtx, sel == ':root' ? '' : sel, parent)
+    )
   }
 
   const runHelper = (key, value) => {
@@ -222,8 +228,8 @@ const makeZ = (conf = {}) => {
     if (!key) return
     // special instructions
     if (key[0] == '$') {
-      if (key == '$name') return (ctx.name = value)
-      if (key == '$compose') return (ctx.cmp = value)
+      if (key == '$name') return (ctx._name = value)
+      if (key == '$compose') return (ctx._compose = value)
       // everything else is a css var
       key = '--' + key.slice(1)
     }
@@ -231,8 +237,8 @@ const makeZ = (conf = {}) => {
     const helper = runHelper(key, value)
     if (helper) {
       const parsed = parseRules(helper)
-      ctx.rul += parsed.rul
-      ctx.sub = ctx.sub.concat(parsed.sub)
+      ctx._rules += parsed._rules
+      ctx._nested = ctx._nested.concat(parsed._nested)
       return
     }
     if (!value) return debug && err('no value for', key)
@@ -253,13 +259,13 @@ const makeZ = (conf = {}) => {
         .join(' ')
     const rule = `  ${key}: ${value};\n`
     if (debug && !isValidCss(id, rule)) err('invalid css', rule)
-    ctx.rul += rule
+    ctx._rules += rule
   }
 
   const PROP = 1
   const VALUE = 2
   const parseRules = memo(str => {
-    const ctx = [{ rul: '', sub: [] }]
+    const ctx = [{ _rules: '', _nested: [] }]
     str = str && str.trim()
     if (!str) return ctx[0]
     str += ';' // append semi to properly commit last rule
@@ -273,15 +279,15 @@ const makeZ = (conf = {}) => {
       if (char == '\n' || ((char == ';' || char == '}') && !quote)) {
         // end of rule, process key/value
         assignRule(ctx[depth], curProp, buffer.trim() + quote)
-        if (char == '}') ctx[--depth].sub.push(ctx.pop())
+        if (char == '}') ctx[--depth]._nested.push(ctx.pop())
         mode = PROP
         curProp = buffer = quote = ''
       } else if (char == '{' && !quote) {
         // block open, pre-process helper and create new ctx
         ctx[++depth] = {
-          sel: runHelper(curProp, buffer.trim()) || (curProp + ' ' + buffer).trim(),
-          rul: '',
-          sub: []
+          _selector: runHelper(curProp, buffer.trim()) || (curProp + ' ' + buffer).trim(),
+          _rules: '',
+          _nested: []
         }
         mode = PROP
         curProp = buffer = ''
@@ -314,15 +320,15 @@ const makeZ = (conf = {}) => {
   const createStyle = memo(rules => {
     const parsed = parseRules(rules)
     const className =
-      (parsed.name ? parsed.name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
+      (parsed._name ? parsed._name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
     appendRule('.' + className, parsed)
-    return new Style(className + (parsed.cmp ? ' ' + parsed.cmp : ''))
+    return new Style(className + (parsed._compose ? ' ' + parsed._compose : ''))
   })
 
   const z = handleTemplate(createStyle)
   z.global = handleTemplate(rules => appendRule(':root', parseRules(rules)))
   z.anim = handleTemplate(createKeyframes)
-  z.style = handleTemplate(rules => parseRules(rules).rul)
+  z.style = handleTemplate(rules => parseRules(rules)._rules)
   z.getSheet = () => style
   z.helper = spec => Object.assign(helpers, spec)
   z.setDebug = flag => (debug = flag)

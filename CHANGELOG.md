@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.1
+
+_2020-07-01_
+
+Updated the build script to mangle property names prefixed with an underscore and went through the source code replacing the previously short property names with longer ones that will be mangled.
+
+This improves the readability of the source code a bit as well as reducing the gzip dist size by ~30 bytes 🎉
+
 ## 0.9.0
 
 _2020-04-21_
