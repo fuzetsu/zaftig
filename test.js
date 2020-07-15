@@ -229,5 +229,10 @@ h6 { basic-fn hello world foo }
     o(z`$name bob;$compose hello world`.class).equals('bob-test-1 hello world')
     o(z.getSheet()).equals(undefined)
   })
+  o('interpolating zaftig style into template yields bare className', () => {
+    const z = zaf.new({ id: 'test' })
+    const style = z`c green`
+    o(z`$compose ${style}`.class).equals('test-2 test-1')
+  })
   // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })

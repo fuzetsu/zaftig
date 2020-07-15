@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.2
+
+_2020-07-15_
+
+Fixed bug where `$compose` would fail to work with zaftig style objects. They were getting concatenated and rendering with a `.`
+
 ## 0.9.1
 
 _2020-07-01_

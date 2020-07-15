@@ -5,7 +5,7 @@ const { hasOwnProperty, getPrototypeOf } = Object
 const err = (...args) => console.error('zaftig:', ...args)
 
 const zip = (parts, args) =>
-  parts.reduce((acc, c, i) => acc + c + (args[i] == null ? '' : args[i]), '')
+  parts.reduce((acc, c, i) => acc + c + (args[i] == null ? '' : String(args[i])), '')
 
 const memo = (fn, cache = {}) => x => (x in cache ? cache[x] : (cache[x] = fn(x)))
 
