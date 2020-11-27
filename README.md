@@ -1,4 +1,4 @@
-# Zaftig [![npm](https://img.shields.io/npm/v/zaftig.svg)](https://www.npmjs.com/package/zaftig) [![size](https://img.badgesize.io/https://unpkg.com/zaftig@latest/dist/zaftig.min.js.png?label=gzip&color=blue&compression=gzip)](https://unpkg.com/zaftig@latest/dist/zaftig.min.js)
+# Zaftig [![npm](https://img.shields.io/npm/v/zaftig.svg)](https://www.npmjs.com/package/zaftig) [![size](https://img.shields.io/bundlephobia/minzip/zaftig)](https://unpkg.com/zaftig@latest/dist/zaftig.min.js)
 
 Zaftig efficiently parses styles, generates a classname for them and inserts them a into a stylesheet in the head of the document.
 
