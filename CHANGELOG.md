@@ -1,8 +1,6 @@
 # Changelog
 
-## 0.9.3
-
-_Unreleased_
+## _Unreleased_
 
 Big update!
 
