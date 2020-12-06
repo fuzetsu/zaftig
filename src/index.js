@@ -111,19 +111,6 @@ const processSelector = (sel, parentSel) =>
     )
     .join(',\n')
 
-class Style {
-  constructor(className) {
-    this.class = className
-    this.className = className
-  }
-  toString() {
-    return this.class
-  }
-  valueOf() {
-    return '.' + this.class
-  }
-}
-
 const wrap = (sel, body) => (sel && body ? `\n${sel} {\n${body}}\n` : '')
 
 const handleTemplate = fn => {
@@ -166,8 +153,21 @@ const prefixSelector = sel =>
 
 const makeZ = (conf = {}) => {
   const { helpers = {}, unit = 'px', id = 'z' + Math.random().toString(36).slice(2) } = conf
-  let { style, debug = false } = conf
+  let { style, dot = true, debug = false } = conf
   let idCount = 0
+
+  class Style {
+    constructor(className) {
+      this.class = className
+      this.className = className
+    }
+    toString() {
+      return this.class
+    }
+    valueOf() {
+      return dot ? '.' + this.class : this.class
+    }
+  }
 
   const addToSheet = (sel, body, prefix) => {
     const rule = wrap(prefix ? prefixSelector(sel) : sel, body)
@@ -364,6 +364,7 @@ const makeZ = (conf = {}) => {
   z.getSheet = () => style
   z.helper = spec => Object.assign(helpers, spec)
   z.setDebug = flag => (debug = flag)
+  z.setDot = flag => (dot = flag)
   z.new = makeZ
   return z
 }
