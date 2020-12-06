@@ -32,7 +32,7 @@ declare module 'zaftig' {
     setDot(state: boolean): void
     ['new'](conf?: {
       debug?: boolean
-      dot: boolean
+      dot?: boolean
       helpers?: HelperMap
       id?: string
       style?: HTMLStyleElement
