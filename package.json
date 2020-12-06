@@ -5,6 +5,7 @@
   "source": "src/index.js",
   "main": "dist/zaftig.es5.min.js",
   "module": "dist/zaftig.min.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "build": "node build.js && npm test",
     "test": "ospec test.js"
