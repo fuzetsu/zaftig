@@ -251,7 +251,7 @@ const makeZ = (conf = {}) => {
       // everything else is a css var
       prop = '--' + prop.slice(1)
     }
-    // helper handling
+    // handle helpers
     const helper = runHelper(prop, value)
     if (helper) {
       const parsed = parseRules(helper)
@@ -260,14 +260,14 @@ const makeZ = (conf = {}) => {
       return
     }
     if (!value) return debug && err('no value for', prop)
-    // shorthand handling
+    // handle shorthands
     prop = short[prop] || prop
-    // auto-prefix / invalid key warning
+    // auto-prefix
     if (!validProps[prop]) {
       const prefixed = `-${vendorPrefix}-${prop}`
       if (validProps[prefixed]) prop = prefixed
     }
-    // replace $ var refs with css var refs
+    // convert var refs
     if (value.indexOf('$') >= 0) value = value.replace(/\$([a-z0-9-]+)/gi, 'var(--$1)')
     // auto-px
     if (needsPx(prop))
