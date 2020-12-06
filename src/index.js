@@ -199,13 +199,11 @@ const makeZ = (conf = {}) => {
       })
       ctx._selector = ctx._type + ' ' + ctx._selector
     }
-    // add child rules and then child rules
     if (ctx._rules) addToSheet(ctx._selector, ctx._rules.replace(/^/gm, '  ') + '\n')
     if (ctx._nested) ctx._nested.forEach(appendSpecialRule)
   }
 
   const appendSpecial = (sel, ctx, parentSel = '', parent) => {
-    // create special context
     const spaceIdx = sel.indexOf(' ')
     const type = sel.slice(0, spaceIdx)
     const special = {
@@ -225,12 +223,10 @@ const makeZ = (conf = {}) => {
   }
 
   const appendRule = (sel, ctx, parentSel = '', parent) => {
-    // apart from root ignore rules without selectors
     if (!sel) {
       if (debug) err('missing selector', ctx)
       return
     }
-    // handle at-rule
     if (/^@(media|keyframes|supports)/.test(sel))
       return appendSpecial(sel, ctx, parentSel == '' ? ':root' : parentSel, parent)
     // compute selector based on parentSel
