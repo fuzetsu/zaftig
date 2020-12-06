@@ -7,7 +7,7 @@ const zlib = require('zlib')
 const Terser = require('terser')
 const buble = require('buble')
 
-const input = fss.readFileSync('src/index.js', 'utf8')
+const inputCode = fss.readFileSync('src/index.js', 'utf8')
 
 const globalName = 'z'
 const name = 'zaftig'
@@ -15,16 +15,6 @@ const srcName = name + '.js'
 const outName = name + '.min.js'
 const es5SrcName = name + '.es5.js'
 const es5OutName = name + '.es5.min.js'
-
-const terserOut = Terser.minify(
-  { [srcName]: input },
-  {
-    module: true,
-    ecma: 8,
-    mangle: { properties: { regex: /^_/ } },
-    sourceMap: { filename: outName, url: outName + '.map' }
-  }
-)
 
 // const p = (...args) => (console.log(...args), args[0])
 
@@ -54,19 +44,6 @@ const moduleToBrowser = code =>
       .replace(/^/gm, '  ')
   )
 
-const bubleOut = buble.transform(moduleToBrowser(input), {
-  modules: false,
-  transforms: { dangerousForOf: true }
-})
-const bubleTerserOut = Terser.minify(
-  { [es5SrcName]: bubleOut.code },
-  {
-    ecma: 5,
-    mangle: { properties: { regex: /^_/ } },
-    sourceMap: { filename: es5OutName, url: es5OutName + '.map' }
-  }
-)
-
 const reportDiff = (path, newCode) => {
   if (!fss.existsSync(path)) return
   const beforeSize = fss.statSync(path).size
@@ -85,9 +62,30 @@ const reportDiff = (path, newCode) => {
   )
 }
 
-fs.mkdir('dist', { recursive: true }).then(() => {
+fs.mkdir('dist', { recursive: true }).then(async () => {
+  const bubleOut = buble.transform(moduleToBrowser(inputCode), {
+    modules: false,
+    transforms: { dangerousForOf: true }
+  })
+  const terserOut = await Terser.minify(
+    { [srcName]: inputCode },
+    {
+      module: true,
+      ecma: 2020,
+      mangle: { properties: { regex: /^_/ } },
+      sourceMap: { filename: outName, url: outName + '.map' }
+    }
+  )
+  const bubleTerserOut = await Terser.minify(
+    { [es5SrcName]: bubleOut.code },
+    {
+      ecma: 5,
+      mangle: { properties: { regex: /^_/ } },
+      sourceMap: { filename: es5OutName, url: es5OutName + '.map' }
+    }
+  )
   // copy main source file
-  fs.writeFile(path.join('dist', srcName), input)
+  fs.writeFile(path.join('dist', srcName), inputCode)
   fs.writeFile(path.join('dist', es5SrcName), bubleOut.code)
 
   // write min file and source map
