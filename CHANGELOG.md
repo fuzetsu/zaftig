@@ -1,5 +1,76 @@
 # Changelog
 
+## 0.9.3
+
+_Unreleased_
+
+Big update!
+
+### New config option `dot`
+
+Controls whether zaftig adds a dot to the className when `valueOf()` is called on `Style` objects:
+
+```js
+z.setDot(true)
+'' + z`c orange` // .z23423 <-- dot
+
+z.setDot(false)
+'' + z`c orange` // z23423 <-- no dot
+```
+
+This is mostly useful when using React, since it calls `valueOf()` on component props:
+
+This snippet only works in React with `dot` set to `false`:
+
+```jsx
+<div className={z`c orange`}>Hello World</div>
+```
+
+### Support for `@supports (...) {}`
+
+Could arguably be considered a bug fix, but starting now Zaftig supports `@supports` blocks, including nesting them:
+
+```js
+z`
+  @supports (display: flex) {
+    display flex
+    @supports (justify-content: center) {
+      justify-content center
+    }
+  }
+`
+```
+
+Output:
+
+```css
+@supports (display: flex) {
+  .z34j42k3 {
+    display: flex;
+  }
+}
+
+@supports (display: flex) and (justify-content: center) {
+  .z34j42k3 {
+    justify-content: center;
+  }
+}
+```
+
+### Enhancement: skip appending rules with no selector
+
+Previously when a block didn't have a selector the styles would get applied to the parent. Now they will simply be ignored.
+In debug mode zaftig will warn about this.
+
+```js
+z`
+  {
+    color green
+  }
+`
+// ⚠️ zaftig: missing selector ...
+```
+
 ## 0.9.2
 
 _2020-07-15_

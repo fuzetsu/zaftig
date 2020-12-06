@@ -94,7 +94,7 @@ Or download the script and use it locally.
 
 ## API
 
-Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.getSheet`](#get-sheet) ~~ [`z.new`](#new)
+Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.setDot`](#set-dot) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.getSheet`](#get-sheet) ~~ [`z.new`](#new)
 
 <hr>
 
@@ -236,6 +236,18 @@ In debug mode Zaftig will insert styles using `textContent` and will log to the 
 `textContent` is much less efficient than the non debug CSSOM method, but it allows you to modify the styles using chrome dev tools.
 
 **NOTE:** make sure to call `setDebug` before inserting any styles
+
+<hr>
+
+<a name="set-dot"></a>
+
+### `z.setDot(bool)`
+
+Controls how [`Style`](#css) objects behave when `valueOf()` is invoked.
+
+The default for `dot` is `true`, meaning that a dot will be prepended to classNames, this is useful when using a hyperscript helper such as [microh](https://github.com/fuzetsu/microh) or [Mithril's](https://github.com/MithrilJS/mithril.js) `m` function.
+
+Under normal circumstances this should not interfere with usage of zaftig, but depending on how some libraries process component props you may want to disable the dot.
 
 <hr>
 
@@ -436,7 +448,10 @@ const newZ = z.new({
   unit: 'rem',
 
   // debug flag, default is false
-  debug: true
+  debug: true,
+
+  // whether or not to add dot to className when valueOf() is called, default is true
+  dot: true
 })
 ```
 
