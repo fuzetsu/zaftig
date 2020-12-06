@@ -167,6 +167,22 @@ const makeZ = (conf = {}) => {
     valueOf() {
       return dot ? '.' + this.class : this.class
     }
+    z(...args) {
+      return this.concat(z(...args))
+    }
+    concat(...things) {
+      return concat(this.class, ...things)
+    }
+  }
+
+  const concat = (...things) => {
+    const classes = []
+    things.forEach(thing => {
+      if (!thing) return
+      if (typeof thing === 'string') classes.push(thing)
+      else if (thing.className) classes.push(thing.className)
+    })
+    return new Style(classes.join(' '))
   }
 
   const addToSheet = (sel, body, prefix) => {
@@ -354,14 +370,15 @@ const makeZ = (conf = {}) => {
   })
 
   const z = handleTemplate(createStyle)
-  z.global = handleTemplate(rules => appendRule(':root', parseRules(rules)))
   z.anim = handleTemplate(createKeyframes)
-  z.style = handleTemplate(rules => parseRules(rules)._rules)
+  z.concat = concat
   z.getSheet = () => style
+  z.global = handleTemplate(rules => appendRule(':root', parseRules(rules)))
   z.helper = spec => Object.assign(helpers, spec)
+  z.new = makeZ
   z.setDebug = flag => (debug = flag)
   z.setDot = flag => (dot = flag)
-  z.new = makeZ
+  z.style = handleTemplate(rules => parseRules(rules)._rules)
   return z
 }
 
