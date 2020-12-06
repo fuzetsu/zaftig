@@ -94,7 +94,7 @@ Or download the script and use it locally.
 
 ## API
 
-Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.setDot`](#set-dot) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.getSheet`](#get-sheet) ~~ [`z.new`](#new)
+Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.setDot`](#set-dot) ~~ [`z.global`](#global) ~~ [`z.style`](#style) ~~ [`z.concat`](#concat) ~~ [`z.anim`](#anim) ~~ [`z.helper`](#helper) ~~ [`z.getSheet`](#get-sheet) ~~ [`z.new`](#new)
 
 <hr>
 
@@ -104,7 +104,17 @@ Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.setDot`](#set-dot)
 
 Generates a `className` for the given `StyleString` and inserts it into a stylesheet in the head of the document.
 
-It returns a `Style` object `{ class, className }`.
+It returns a `Style` object `{ class, className, concat, z }`.
+
+`.concat` allows you to combine the current className with others. [See `z.concat`](#concat).
+
+`.z` lets you extend/chain another `StyleString`, it calls `.concat` under the hood and is equivalent to `` z`...`.concat(z`...`) ``
+
+```js
+const white = z`color white` // z1234-1
+const whiteAndBlack = white.z`background-color black` // z1234-1 z1234-2
+const extended = whiteAndBlack.concat(z`font-size 20px`, 'test') // z1234-1 z1234-2 z1234-3 test
+```
 
 When `.toString()` is called on a `Style` object the `className` will be returned.
 
@@ -283,6 +293,32 @@ z.style`color ${fgColor};background-color ${bgColor}`
 ```
 
 Nested selectors will be ignored, only simple styles will be returned.
+
+<hr>
+
+<a name="concat"></a>
+
+### `z.concat(...(string | Style | Falsy))`
+
+Processes all the given arguments into a final `className` wrapped in a `Style` object for further chaining.
+
+Falsy arguments are ignored which means arguments can be conditionally included.
+
+```js
+z.concat('hello', cond && 'world') // 'hello' or 'hello world' depending on cond
+
+// you can use either strings or zaftig styles
+z.concat('btn btn-large', z`c green`) // 'btn btn-large z1234-1'
+
+// concat can be used statically
+z.concat('one', 'two') // 'one two'
+
+// or chained of an existing style
+z`c green`.concat('one', 'two') // 'z1234-1 one two'
+
+// you can continue chaining after calling concat
+z.concat('one').concat('two').concat('three').z`c green` // 'one two three z1234-1'
+```
 
 <hr>
 
