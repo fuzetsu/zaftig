@@ -216,10 +216,7 @@ const makeZ = (conf = {}) => {
   }
 
   const appendRule = (sel, ctx, parentSel = '', parent) => {
-    if (!sel) {
-      if (debug) err('missing selector', ctx)
-      return
-    }
+    if (!sel) return debug && err('missing selector', ctx)
     if (/^@(media|keyframes|supports)/.test(sel)) return appendAtRule(sel, ctx, parentSel, parent)
     // compute selector based on parentSel
     if (parentSel && (!parent || !isKeyframes(parent._selector)))
