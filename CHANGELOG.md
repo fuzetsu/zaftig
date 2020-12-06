@@ -70,14 +70,54 @@ Output:
   .z34j42k3 {
     display: flex;
   }
-}
 
-@supports (display: flex) and (justify-content: center) {
-  .z34j42k3 {
-    justify-content: center;
+  @supports (justify-content: center) {
+    .z34j42k3 {
+      justify-content: center;
+    }
   }
 }
 ```
+
+### Output nested `@media` and `@supports` queries
+
+In previous versions zaftig would try to generate a combined selector for media queries when they were nested:
+
+```js
+z`
+  @media screen {
+    @media (min-width: 500px) {
+      c green
+    }
+  }
+`
+```
+
+Would generate:
+
+```css
+@media screen and (min-width: 500px) {
+  .z32423 {
+    color: green;
+  }
+}
+```
+
+[Since all browsers (apart from IE which Zaftig doesn't support) support nested media queries](https://caniuse.com/css-mediaqueries) from now on zaftig will output them nested instead of generating a combined query:
+
+```css
+@media screen {
+  @media (min-width: 500px) {
+    .z3423 {
+      color: green;
+    }
+  }
+}
+```
+
+This should not result in a visible difference in behavior except in cases where zaftig was incorrectly generating the combined query.
+
+The main advantage of this change is simpler/smaller code for appending styles, and more consistent behavior since complex boolean media queries would not work in previous versions.
 
 ### Enhancement: skip appending rules with no selector
 
