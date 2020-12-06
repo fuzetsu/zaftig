@@ -134,9 +134,11 @@ const handleTemplate = fn => {
 
 const createSheet = () => document.head.appendChild(document.createElement('style'))
 
-const _testSheet = createSheet()
+let _testSheet
 const isValidCss = (sel, body = '') => {
   try {
+    // if sheet has been removed from DOM recreate it
+    if (!_testSheet || !_testSheet.sheet) _testSheet = createSheet()
     _testSheet.sheet.insertRule(`${sel}{${body}}`, 0)
     const out = body && _testSheet.sheet.cssRules[0].cssText.replace(/\s/g, '')
     _testSheet.sheet.deleteRule(0)
