@@ -121,12 +121,14 @@ class Style {
 
 const wrap = (sel, body) => (sel && body ? `\n${sel} {\n${body}}\n` : '')
 
-const handleTemplate = fn => (parts, ...args) => {
-  try {
-    return typeof parts === 'string' ? fn(parts) : isArray(parts) ? fn(zip(parts, args)) : ''
-  } catch (e) {
-    err('error `', parts, '`', args, '\n', e)
-    return ''
+const handleTemplate = fn => {
+  return function (parts, ...args) {
+    try {
+      return isArray(parts) ? fn.call(this, zip(parts, args)) : fn.call(this, parts)
+    } catch (e) {
+      err('error `', parts, '`', args, '\n', e)
+      return ''
+    }
   }
 }
 
