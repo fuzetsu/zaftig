@@ -215,6 +215,12 @@ const makeZ = (conf = {}) => {
   }
 
   const appendRule = (sel, ctx, parentSel = '', parent) => {
+    // apart from root ignore rules without selectors
+    if (!sel) {
+      if (debug) err('missing selector', ctx)
+      return
+    }
+    // handle at-rule
     if (/^@(media|keyframes)/.test(sel))
       return appendSpecial(sel, ctx, parentSel == '' ? ':root' : parentSel, parent)
     if (parentSel && (!parent || parent._media)) sel = processSelector(sel, parentSel)
