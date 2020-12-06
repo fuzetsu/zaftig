@@ -4,6 +4,30 @@
 
 Big update!
 
+### Three new options for chaining styles together
+
+1. concat: `` z.concat(z`c green`, 'hello', cond && z`bc white`) ``
+2. chained z: `` z`c orange`.z`fs 200%` ``
+3. chained concat: `` z`c orange`.concat('some-class', cond && z`c blue`) ``
+
+`z` chaining allows you to extend an existing zaftig style directly, and is an alternative to `$compose`.
+It is especially useful when used on a cached style:
+
+```js
+const tagStyle = z`padding 5; border-radius 4; background black; color white`
+const errorTagStyle = tagStyle.z`color red`
+```
+
+Concat is useful when you want to combine a zaftig style with other zaftig styles or CSS classes:
+
+```jsx
+const textBoxStyle = z`padding 5; width 100%`
+const errorStyle = z`c red`
+const successStyle = z`c green`
+//...
+<input className={textBoxStyle.concat(error && errorStyle, success && successStyle)} />
+```
+
 ### New config option `dot`
 
 Controls whether zaftig adds a dot to the className when `valueOf()` is called on `Style` objects:

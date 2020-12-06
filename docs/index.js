@@ -120,8 +120,7 @@ const btn = z`
   }
 `
 
-const squareBtn = z`
-  $compose ${btn.class} text-danger
+const squareBtn = btn.z`
   $name square-button
   br 0
 `
@@ -179,7 +178,7 @@ class App extends Component {
         m('span' + z`w 60;d inline-block;ta center;fs 2em`, count),
         m('' + btn, { onclick: () => this.setState({ count: count - 1 }) }, 'Decrease')
       ),
-      m('div', m('span' + squareBtn, 'Square Button')),
+      m('div', m('span' + squareBtn.concat('text-danger', null, z`fs 150%`), 'Square Button')),
       m('input' + tbox, {
         placeholder: 'background color',
         onchange: ({ target: t }) => this.setState({ color: t.value.trim() })

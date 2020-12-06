@@ -330,6 +330,45 @@ w 100
     `)
   })
 
+  o.spec('concat', () => {
+    o('static works', () => {
+      const z = testZ()
+      const style = z.concat('hello', false, z`c green`)
+      o(style.class).equals('hello test-1')
+      const style2 = style.concat('one-more')
+      o(style2.class).equals('hello test-1 one-more')
+    })
+    o('chained works', () => {
+      const z = testZ()
+      const style = z`c green`
+      o(style.class).equals('test-1')
+      const style2 = style.concat(z`c orange`)
+      o(style2.class).equals('test-1 test-2')
+      const style3 = style2.concat('string', null, false, '', 0, { className: 'test' }, z`c blue`)
+      o(style3.class).equals('test-1 test-2 string test test-3')
+    })
+    o('chained works - non template', () => {
+      const z = testZ()
+      const style1 = z('m 10').concat('test')
+      o(style1.class).equals('test-1 test')
+      const style2 = style1.concat('foo')
+      o(style2.class).equals('test-1 test foo')
+    })
+  })
+
+  o.spec('sub z', () => {
+    o('works', () => {
+      const z = testZ()
+      const style1 = z`c green`.z`c orange`.z`c purple`
+      o(style1.class).equals('test-1 test-2 test-3')
+    })
+    o('works - non template', () => {
+      const z = testZ()
+      const style1 = z('c green').z('c orange').z('c purple')
+      o(style1.class).equals('test-1 test-2 test-3')
+    })
+  })
+
   o.spec('z.setDot', () => {
     o('works with z.new', () => {
       const z = zaf.new({ id: 'test', dot: false })
