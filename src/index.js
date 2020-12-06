@@ -13,6 +13,7 @@ const dash = nodash => nodash.replace(/[A-Z]/g, m => '-' + m.toLowerCase())
 
 const initials = str => str[0] + str.slice(1).replace(/[a-z]/g, '').toLowerCase()
 
+// determine vendor prefix for current browser
 const vendorPrefix =
   document.documentMode || /Edge\//.test(navigator.userAgent)
     ? 'ms'
@@ -48,10 +49,12 @@ const popular = [
   'width'
 ]
 
-const findStyle = obj => (hasOwnProperty.call(obj, 'width') ? obj : findStyle(getPrototypeOf(obj)))
+// recursively search for style prototype used to establish valid props
+const findStyleProto = obj =>
+  hasOwnProperty.call(obj, 'width') ? obj : findStyleProto(getPrototypeOf(obj))
 
 // collect valid props and their shorthands
-const props = Object.keys(findStyle(document.documentElement.style)).filter(
+const props = Object.keys(findStyleProto(document.documentElement.style)).filter(
   prop => prop.indexOf('-') < 0 && prop != 'length'
 )
 const validProps = {}
@@ -69,6 +72,7 @@ props.concat(popular.filter(pop => props.indexOf(pop) >= 0)).forEach(prop => {
   validProps[dashed] = true
 })
 
+// determines if given css prop takes pixels
 const testDiv = document.createElement('div')
 const needsPx = memo(
   prop =>
@@ -88,18 +92,19 @@ const needsPx = memo(
 
 const selSep = /\s*,\s*/
 
-const processSelector = (sel, psel) =>
-  psel
+// generates selector and combinations of selector and parent
+const processSelector = (sel, parentSel) =>
+  parentSel
     .split(selSep)
     .reduce(
-      (acc, ppart) =>
+      (acc, parentPart) =>
         acc.concat(
           sel
             .split(selSep)
             .map(part =>
               part.indexOf('&') >= 0
-                ? part.replace(/&/g, ppart)
-                : ppart + (part[0] == ':' || part[0] == '[' ? '' : ' ') + part
+                ? part.replace(/&/g, parentPart)
+                : parentPart + (part[0] == ':' || part[0] == '[' ? '' : ' ') + part
             )
         ),
       []
@@ -156,7 +161,7 @@ const prefixSelector = sel =>
     // skip valid or already prefixed selectors
     return name[0] == '-' || isValidCss(paran ? full + '.f)' : full)
       ? full
-      : pre + '-' + vendorPrefix + '-' + name + (paran || '')
+      : `${pre}-${vendorPrefix}-${name}${paran || ''}`
   })
 
 const makeZ = (conf = {}) => {
@@ -194,25 +199,25 @@ const makeZ = (conf = {}) => {
     if (ctx._nested) ctx._nested.forEach(appendSpecialRule)
   }
 
-  const appendSpecial = (sel, ctx, psel = '', parent) => {
+  const appendSpecial = (sel, ctx, parentSel = '', parent) => {
     const media = sel.indexOf('@media') == 0
     const special = {
       _selector: media ? sel.slice(sel.indexOf(' ') + 1) : sel,
       _media: media,
       _nested: [],
-      _rules: media ? wrap(psel, ctx._rules) : ''
+      _rules: media ? wrap(parentSel, ctx._rules) : ''
     }
     ctx._nested.forEach(nested =>
-      appendRule(nested._selector, nested, psel == ':root' ? '' : psel, special)
+      appendRule(nested._selector, nested, parentSel == ':root' ? '' : parentSel, special)
     )
     if (parent) parent._nested.push(special)
     else appendSpecialRule(special)
   }
 
-  const appendRule = (sel, ctx, psel = '', parent) => {
+  const appendRule = (sel, ctx, parentSel = '', parent) => {
     if (/^@(media|keyframes)/.test(sel))
-      return appendSpecial(sel, ctx, psel == '' ? ':root' : psel, parent)
-    if (psel && (!parent || parent._media)) sel = processSelector(sel, psel)
+      return appendSpecial(sel, ctx, parentSel == '' ? ':root' : parentSel, parent)
+    if (parentSel && (!parent || parent._media)) sel = processSelector(sel, parentSel)
     if (parent) parent._rules += wrap(sel, ctx._rules)
     else addToSheet(sel, ctx._rules)
     ctx._nested.forEach(nestedCtx =>
@@ -227,41 +232,45 @@ const makeZ = (conf = {}) => {
       : helper && helper + ' ' + value
   }
 
-  const assignRule = (ctx, key, value) => {
-    if (value && !key) (key = value), (value = '')
-    if (!key) return
+  const assignRule = (ctx, prop, value) => {
+    // if we only have a value then treat it as the prop
+    if (value && !prop) {
+      prop = value
+      value = ''
+    }
+    if (!prop) return
     // special instructions
-    if (key[0] == '$') {
-      if (key == '$name') return (ctx._name = value)
-      if (key == '$compose') return (ctx._compose = value)
+    if (prop[0] == '$') {
+      if (prop == '$name') return (ctx._name = value)
+      if (prop == '$compose') return (ctx._compose = value)
       // everything else is a css var
-      key = '--' + key.slice(1)
+      prop = '--' + prop.slice(1)
     }
     // helper handling
-    const helper = runHelper(key, value)
+    const helper = runHelper(prop, value)
     if (helper) {
       const parsed = parseRules(helper)
       ctx._rules += parsed._rules
       ctx._nested = ctx._nested.concat(parsed._nested)
       return
     }
-    if (!value) return debug && err('no value for', key)
+    if (!value) return debug && err('no value for', prop)
     // shorthand handling
-    key = short[key] || key
+    prop = short[prop] || prop
     // auto-prefix / invalid key warning
-    if (!validProps[key]) {
-      const prefixed = `-${vendorPrefix}-${key}`
-      if (validProps[prefixed]) key = prefixed
+    if (!validProps[prop]) {
+      const prefixed = `-${vendorPrefix}-${prop}`
+      if (validProps[prefixed]) prop = prefixed
     }
     // replace $ var refs with css var refs
     if (value.indexOf('$') >= 0) value = value.replace(/\$([a-z0-9-]+)/gi, 'var(--$1)')
     // auto-px
-    if (needsPx(key))
+    if (needsPx(prop))
       value = value
         .split(' ')
         .map(part => (isNaN(part) ? part : part + unit))
         .join(' ')
-    const rule = `  ${key}: ${value};\n`
+    const rule = `  ${prop}: ${value};\n`
     if (debug && !isValidCss(id, rule)) err('invalid css', rule)
     ctx._rules += rule
   }
@@ -298,6 +307,7 @@ const makeZ = (conf = {}) => {
       } else if (mode == PROP) {
         if (char == ' ') {
           if ((curProp = buffer.trim())) {
+            // first space with value in curProp means we search for value
             mode = VALUE
             buffer = ''
           }
@@ -323,8 +333,7 @@ const makeZ = (conf = {}) => {
 
   const createStyle = memo(rules => {
     const parsed = parseRules(rules)
-    const className =
-      (parsed._name ? parsed._name.replace(/\s+/, '-') + '-' : '') + id + '-' + (idCount += 1)
+    const className = (parsed._name ? parsed._name + '-' : '') + id + '-' + (idCount += 1)
     appendRule('.' + className, parsed)
     return new Style(className + (parsed._compose ? ' ' + parsed._compose : ''))
   })
