@@ -109,6 +109,76 @@ h 200
 }
     `)
   })
+  o('@supports works', () => {
+    fullSheet(css`
+@supports (display: flex) {
+  bc white
+}
+@supports (display: grid) {
+  h 100
+  @supports (aspect-ratio: 4 / 8) {
+    w 100
+  }
+}
+  ===
+@supports (display: flex) {
+  
+  .test-1 {
+    background-color: white;
+  }
+  
+}
+
+@supports (display: grid) {
+  
+  .test-1 {
+    height: 100px;
+  }
+  
+}
+
+@supports (display: grid) and (aspect-ratio: 4 / 8) {
+  
+  .test-1 {
+    width: 100px;
+  }
+  
+}
+    `)
+  })
+  o('@keyframes works', () => {
+    fullSheet(css`
+.hello {
+  @keyframes spin {
+    0% { o 0 }
+    100% { o 1 }
+  }
+}
+@keyframes spin-2 {
+  50% { c green }
+}
+===
+@keyframes spin {
+  
+  0% {
+    opacity: 0;
+  }
+  
+  100% {
+    opacity: 1;
+  }
+  
+}
+
+@keyframes spin-2 {
+  
+  50% {
+    color: green;
+  }
+  
+}
+    `)
+  })
   o('z.style works', () => {
     o(zaf.style`m 10;p 20;h 400`.replace(/\s+/gm, '')).equals(
       'margin:10px;padding:20px;height:400px;'
@@ -258,6 +328,21 @@ w 100
   color: orange;
 }
     `)
+  })
+
+  o.spec('z.setDot', () => {
+    o('works with z.new', () => {
+      const z = zaf.new({ id: 'test', dot: false })
+      o('' + z`c green`).equals('test-1')
+    })
+    o('works with setter', () => {
+      const z = testZ()
+      o('' + z`c green`).equals('.test-1')
+      z.setDot(false)
+      o('' + z`c green`).equals('test-1')
+      z.setDot(true)
+      o('' + z`c green`).equals('.test-1')
+    })
   })
   // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })
