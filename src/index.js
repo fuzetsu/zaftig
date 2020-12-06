@@ -188,28 +188,38 @@ const makeZ = (conf = {}) => {
     }
   }
 
+  const isKeyframes = type => type == '@keyframes'
+
   const appendSpecialRule = ctx => {
-    if (ctx._media) {
-      ctx._nested.forEach(
-        nested => nested._media && (nested._selector = ctx._selector + ' and ' + nested._selector)
-      )
-      ctx._selector = '@media ' + ctx._selector
+    // for non keyframes types we need to combine parent and child selectors
+    if (!isKeyframes(ctx._type)) {
+      ctx._nested.forEach(nested => {
+        if (isKeyframes(nested._type)) return
+        nested._selector = ctx._selector + ' and ' + nested._selector
+      })
+      ctx._selector = ctx._type + ' ' + ctx._selector
     }
+    // add child rules and then child rules
     if (ctx._rules) addToSheet(ctx._selector, ctx._rules.replace(/^/gm, '  ') + '\n')
     if (ctx._nested) ctx._nested.forEach(appendSpecialRule)
   }
 
   const appendSpecial = (sel, ctx, parentSel = '', parent) => {
-    const media = sel.indexOf('@media') == 0
+    // create special context
+    const spaceIdx = sel.indexOf(' ')
+    const type = sel.slice(0, spaceIdx)
     const special = {
-      _selector: media ? sel.slice(sel.indexOf(' ') + 1) : sel,
-      _media: media,
+      _selector: isKeyframes(type) ? sel : sel.slice(spaceIdx + 1),
+      _type: type,
       _nested: [],
-      _rules: media ? wrap(parentSel, ctx._rules) : ''
+      _rules: isKeyframes(type) ? '' : wrap(parentSel, ctx._rules)
     }
+    // for special rules we need to process nested rules first
+    // so that we accumulate the child rules in special._rules
     ctx._nested.forEach(nested =>
       appendRule(nested._selector, nested, parentSel == ':root' ? '' : parentSel, special)
     )
+    // if we're within a parent context push there otherwise add to sheet
     if (parent) parent._nested.push(special)
     else appendSpecialRule(special)
   }
@@ -221,11 +231,14 @@ const makeZ = (conf = {}) => {
       return
     }
     // handle at-rule
-    if (/^@(media|keyframes)/.test(sel))
+    if (/^@(media|keyframes|supports)/.test(sel))
       return appendSpecial(sel, ctx, parentSel == '' ? ':root' : parentSel, parent)
-    if (parentSel && (!parent || parent._media)) sel = processSelector(sel, parentSel)
+    // compute selector based on parentSel
+    if (parentSel && (!parent || !isKeyframes(parent._type))) sel = processSelector(sel, parentSel)
+    // when we have a parent add rules there, otherwise directly to sheet
     if (parent) parent._rules += wrap(sel, ctx._rules)
     else addToSheet(sel, ctx._rules)
+    // process nested rules
     ctx._nested.forEach(nestedCtx =>
       appendRule(nestedCtx._selector, nestedCtx, sel == ':root' ? '' : sel, parent)
     )
