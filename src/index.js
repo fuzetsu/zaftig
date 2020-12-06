@@ -208,7 +208,7 @@ const makeZ = (conf = {}) => {
   const indent = rules => rules.replace(/^/gm, '  ') + '\n'
 
   const appendAtRule = (sel, ctx, parentSel, parent) => {
-    ctx._rules = isKeyframes(sel) ? '' : wrap(parentSel == '' ? ':root' : parentSel, ctx._rules)
+    ctx._rules = wrap(parentSel == '' ? ':root' : parentSel, ctx._rules)
     // for at-rules we have to run through nested blocks first to accumulate child _rules
     ctx._nested.forEach(nested => appendRule(nested._selector, nested, parentSel, ctx))
     if (parent) parent._rules += wrap(sel, indent(ctx._rules))
