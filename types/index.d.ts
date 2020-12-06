@@ -19,7 +19,7 @@ declare module 'zaftig' {
   type ZaftigStringFn<T> = (style: string) => T
   type ZaftigFn<T> = ZaftigTemplateFn<T> & ZaftigStringFn<T>
 
-  type HelperMap = { [key: string]: string | ((...args: any[]) => string) }
+  type HelperMap = { [key: string]: string | ((...args: string[]) => string) }
 
   const z: ZaftigFn<ZaftigStyle> & {
     anim: ZaftigFn<string>
