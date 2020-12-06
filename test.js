@@ -14,7 +14,7 @@ const zaf = require('./dist/zaftig.es5')
 
 const css = (parts, ...args) => [''].concat(args).reduce((acc, arg, i) => acc + arg + parts[i], '')
 
-const singleRule = (input, output, z = zaf.new({ id: 'test' })) => {
+const singleRule = (input, output, z = testZ()) => {
   const styl = z(input)
   o('' + styl).equals('.test-1')
   o(styl.class).equals('test-1')
@@ -31,6 +31,8 @@ const fullSheet = (str, conf) => {
   o(style.className).equals('test-1')
   o(z.getSheet().textContent.trim()).equals(output.trim())
 }
+
+const testZ = () => zaf.new({ id: 'test' })
 
 o.spec('zaftig', () => {
   o('generates className and rule for simple style', () => singleRule('c orange', 'color: orange;'))
@@ -125,7 +127,9 @@ h 200
       '.test-1{color:red;top:100px;padding:50px;margin:0px;bottom:300px;}'
     )
   })
-  o('does not crash for invalid input, returns empty string', () => o(zaf.new()`}}}}}`).equals(''))
+  o('does not crash for invalid input, returns empty string', () => {
+    o(zaf.new()`}}}}}`).equals('')
+  })
   o('same style string returns same classname', () => {
     const z = zaf.new()
     o(z`m 10`.class).equals(z`m 10`.class)
@@ -225,14 +229,35 @@ h6 { basic-fn hello world foo }
     )
   })
   o('$name and $compose work', () => {
-    const z = zaf.new({ id: 'test' })
+    const z = testZ()
     o(z`$name bob;$compose hello world`.class).equals('bob-test-1 hello world')
     o(z.getSheet()).equals(undefined)
   })
   o('interpolating zaftig style into template yields bare className', () => {
-    const z = zaf.new({ id: 'test' })
+    const z = testZ()
     const style = z`c green`
     o(z`$compose ${style}`.class).equals('test-2 test-1')
+  })
+  o('returns style object for falsy input', () => {
+    const z = testZ()
+    const tests = [z``, z(0), z(false), z(' jjj'), z('')]
+    o(tests.every(test => typeof test === 'object')).equals(true)
+  })
+  o('blocks without selectors are ignored', () => {
+    fullSheet(css`
+w 100
+{ c green }
+.hello { c orange }
+.world {{{ .test { c pink } }}}
+===
+.test-1 {
+  width: 100px;
+}
+
+.test-1 .hello {
+  color: orange;
+}
+    `)
   })
   // TODO: add tests for selector prefixing and better error handling (JSDOM doesn't seem to give syntax errors like browsers do)
 })
