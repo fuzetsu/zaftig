@@ -100,9 +100,9 @@ Quick links: [`z`](#css) ~~ [`z.setDebug`](#set-debug) ~~ [`z.setDot`](#set-dot)
 
 <a name="css"></a>
 
-### `` z`<styleString>` ``
+### `` z`<StyleString>` ``
 
-Generates a `className` for the given `styleString` and inserts it into a stylesheet in the head of the document.
+Generates a `className` for the given `StyleString` and inserts it into a stylesheet in the head of the document.
 
 It returns a `Style` object `{ class, className }`.
 
@@ -135,7 +135,7 @@ Styles are separated by `;` or `\n`.
 
 `sel { /* rules */ }` creates a nested style. Use `&` within the selector to reference the parent selector similar to how [Less](http://lesscss.org/) works.
 
-There are a couple of special properties that can be used within a `styleString`.
+There are a couple of special properties that can be used within a `StyleString`.
 
 `$name` will prepend the given string to the generated class name to make it easier to read the DOM:
 
@@ -253,7 +253,7 @@ Under normal circumstances this should not interfere with usage of zaftig, but d
 
 <a name="global"></a>
 
-### `` z.global`<styleString>` ``
+### `` z.global`<StyleString>` ``
 
 Appends global styles. Multiple calls with the same string will result in the style being appended multiple times.
 
@@ -270,7 +270,7 @@ z.global`
 
 <a name="style"></a>
 
-### `` z.style`<styleString>` ``
+### `` z.style`<StyleString>` ``
 
 Parses given style string and returns string of css rules. Useful for styles that change frequently to prevent generating too many classNames.
 Resulting string can be assigned to the style attribute of a DOM element.
@@ -288,9 +288,9 @@ Nested selectors will be ignored, only simple styles will be returned.
 
 <a name="anim"></a>
 
-### `` z.anim`<styleString>` ``
+### `` z.anim`<StyleString>` ``
 
-Generates an `@keyframes` for the given `styleString`. It returns the generated name.
+Generates an `@keyframes` for the given `StyleString`. It returns the generated name.
 
 ```js
 const grow = z.anim`
@@ -305,25 +305,28 @@ z`animation ${grow} 1s ease`
 
 <a name="helper"></a>
 
-### `z.helper({ helperName: helperString | helperFunction, ... })`
+### `z.helper({ helperName: StyleString | Function, ... })`
 
 Register helpers functions to be called from style strings.
 
-A helper can be a `styleString|selector` or a function that returns a `styleString|selector`.
+A helper can be a `StyleString` or a function that returns a `StyleString`.
 
 If the helper is a function it will receive arguments, as seen in the `size` example below.
+If it is a `StyleString` it will have arguments appended to it.
 
 ```js
 z.helper({
   mx: x => `margin-left ${x}; margin-right ${x}`,
   size: (h, w) => `h ${h}; w ${w}`,
-  shadow: 'box-shadow 0 2 4 2 rgba(0,0,0,0.5)'
+  shadow: 'box-shadow 0 2 4 2 rgba(0,0,0,0.5)',
+  smooth: 'transition' // since args are appended, this can act as an alias
 })
 
 z`
   mx 10
   size 50 100
   shadow
+  smooth color 1s
 `
 ```
 
