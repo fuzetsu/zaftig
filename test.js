@@ -98,12 +98,12 @@ h 200
     padding: 20px;
   }
   
-}
-
-@media only screen (min-width: 800px) and (max-width: 500px) {
-  
-  .test-1 {
-    padding: 15px;
+  @media (max-width: 500px) {
+    
+    .test-1 {
+      padding: 15px;
+    }
+    
   }
   
 }
@@ -135,12 +135,12 @@ h 200
     height: 100px;
   }
   
-}
-
-@supports (display: grid) and (aspect-ratio: 4 / 8) {
-  
-  .test-1 {
-    width: 100px;
+  @supports (aspect-ratio: 4 / 8) {
+    
+    .test-1 {
+      width: 100px;
+    }
+    
   }
   
 }
