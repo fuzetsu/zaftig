@@ -2,6 +2,8 @@
 
 ## 0.10.0
 
+_2020-12-09_
+
 Big update! 🎉
 
 ### Three new options for chaining styles together
