@@ -1,8 +1,8 @@
 # Changelog
 
-## _Unreleased_
+## 0.10.0
 
-Big update!
+Big update! 🎉
 
 ### Three new options for chaining styles together
 
