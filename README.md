@@ -58,7 +58,7 @@ const App = () => (
   <main className={btnGroup}>
     <button className={btn.concat('primary', 'rounded')}>Primary</button>
     <button className={btnWarning.concat('rounded')}>Warning</button>
-    <button className={btn.z`$btn-color green`}>Success</button>
+    <button className={btnSuccess}>Success</button>
     <button className={btnSuccess.concat('primary rounded')}>Success + Primary</button>
   </main>
 )
