@@ -72,18 +72,24 @@ render(<App />, document.body)
 
 ## Usage
 
-ES6 modules:
+Module:
 
 ```js
-import z from 'https://unpkg.com/zaftig?module'
+import z from 'zaftig'
+
+z.setDot(false) // if you're using React
+
 z`color green; background red`
 ```
 
-ES5 browser environment:
+Script:
 
 ```html
+<!-- uses zaftig.es5.min.js -->
 <script src="https://unpkg.com/zaftig"></script>
 <script>
+  z.setDot(false) // if you're using React
+
   z`color green; background red`
 </script>
 ```
